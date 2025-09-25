@@ -1,0 +1,32 @@
+{
+  "info": {
+    "name": "HealthLogue Agents API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "d3b1a3d4-8e7f-4b06-9a66-aaaa00000001"
+  },
+  "item": [
+    {
+      "name": "Agents: Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://localhost:7001/api/agents/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7001",
+          "path": ["api", "agents", "chat"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"user-123\",\n  \"session_id\": \"c0ffee5eedbeef1234abcdff00112233\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n      { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n      { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n    ],\n    \"features\": [\n      { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n    ]\n  }\n}"
+        }
+      },
+      "response": []
+    }
+  ]
+}
+
+

@@ -4,7 +4,7 @@ import json
 from typing import List, Optional, Type
 from pydantic import BaseModel
 from src.configs.agent_config import AgentConfig
-from src.agents.models import TextInput, TextOutput
+from src.agent_models.base_models import TextInput, TextOutput
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
@@ -61,6 +61,7 @@ class BaseAgent(abc.ABC):
         logger.info(f"Setting up agent: {self.agent_config}")
         
         # Create agent configuration with input/output schemas
+        # adk agent
         self.agent = Agent(
             model=self._get_model(),
             name=self._get_agent_name(),
@@ -70,17 +71,23 @@ class BaseAgent(abc.ABC):
             output_schema=self.output_schema,
         )
 
+    def _setup_session_service(self) -> None:
+        """Setup the Google ADK session service."""
+        logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
+        self.session_service = InMemorySessionService()
+        logger.info(f"Session service for agent: {self._get_agent_name()} created")
+
     def _setup_runner(self) -> None:
         """Setup the Google ADK runner."""
         logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
-        session_service = InMemorySessionService()
+        self._setup_session_service()
         logger.info(f"Session service for agent: {self._get_agent_name()} created")
 
         logger.info(f"Setting up runner for agent: {self._get_agent_name()}")
         self.runner = Runner(
             agent=self.agent,
             app_name=self._get_agent_name(),
-            session_service=session_service,
+            session_service=self.session_service,
         )
         
     async def _get_or_create_session(self, user_id: str, session_id: str) -> None:
@@ -157,6 +164,11 @@ class BaseAgent(abc.ABC):
         else:
             logger.error("No valid content found in the response")
             return None
+    
+    @abc.abstractmethod
+    async def chat(self, user_id: str, session_id: str, input: BaseModel) -> BaseModel:
+        """Chat with the agent."""
+        pass
     
     @abc.abstractmethod
     def _create_tools(self) -> List[FunctionTool]:

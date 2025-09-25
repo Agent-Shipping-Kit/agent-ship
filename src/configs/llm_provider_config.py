@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class LLMProviderName(Enum):
     """Name of the LLM provider."""
     OPENAI = "openai"

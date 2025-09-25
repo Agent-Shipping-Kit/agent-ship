@@ -25,7 +25,7 @@ class TestingConfig(Config):
     LOG_FILE_PATH = "test_app.log"
 
 def get_config():
-    env = os.getenv("FASTAPI_ENV", "development")
+    env = os.getenv("ENVIRONMENT", "development")
     if env == "production":
         return ProductionConfig()
     elif env == "testing":

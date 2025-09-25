@@ -18,11 +18,9 @@ class AgentConfig:
     """
 
     def __init__(self, llm_provider_name: LLMProviderName, llm_model: LLMModel = LLMModel.GPT_4O_MINI, 
-                max_followups: int = 5, temperature: float = 0.4, agent_name: str='', description: str='', 
-                instruction_template: str=''):
+                temperature: float = 0.4, agent_name: str='', description: str='', instruction_template: str=''):
         self.model_provider = LLMProviderConfig.get_llm_provider(llm_provider_name)
         self.model = llm_model
-        self.max_followups = max_followups
         self.temperature = temperature
         self.agent_name = agent_name
         self.description = description
@@ -45,7 +43,6 @@ class AgentConfig:
         return cls(
             llm_provider_name=LLMProviderName(config['llm_provider_name']),
             llm_model=LLMModel(config['llm_model']),
-            max_followups=config['max_followups'],
             temperature=config['temperature'],
             agent_name=config['agent_name'  ],
             description=config['description'],
@@ -53,7 +50,8 @@ class AgentConfig:
         )
 
     def __str__(self):
-        return f"AgentConfig(model_provider={self.model_provider.name.value}, model={self.model.value}, max_followups={self.max_followups}, temperature={self.temperature}, agent_name={self.agent_name}, description={self.description}, instruction_template={self.instruction_template})"
+        return f"AgentConfig(model_provider={self.model_provider.name.value}, model={self.model.value}, \
+            temperature={self.temperature}, agent_name={self.agent_name}, description={self.description}, instruction_template={self.instruction_template})"
 
 if __name__ == "__main__":
     agent_config = AgentConfig.from_yaml("src/agents/followups_generation/main_agent.yaml")
