@@ -1,14 +1,31 @@
-# Medical Followup Generation Agent
+# HealthLogue AI Agents Platform
 
-A simple, configurable AI agent that generates followup questions for medical conversations using Google ADK and LiteLLM.
+A comprehensive AI agent development platform that provides a complete ecosystem for building, deploying, and managing AI agents with integrated tools, observability, and memory management.
+
+## Architecture
+
+![AI Agents Architecture](architecture.jpg)
+
+Our platform provides a complete AI agent ecosystem with:
+
+- **FastAPI Layer**: HTTP/chat, SSE/chat-streaming, WebSocket support with guardrails, observability, and PII security
+- **AI Backend**: Multi-framework support (Crew AI, Strands SDK, Google ADK) with LLM provider integration
+- **Observability**: Integrated with Datadog, AWS, and Azure for comprehensive monitoring
+- **Memory Management**: Short/long-term memory, RAG, and caching with DiceDB, PostgreSQL, S3, and OpenSearch
+- **Operations**: Prompt versioning, evaluation management, and tracing via Opik integration
+- **Tools & MCP**: Comprehensive tool registry and Model Control Plane for agent capabilities
 
 ## Features
 
-- 🤖 **Google ADK Integration**: Built with Google's Agent Development Kit
-- 🔄 **Multi-Model Support**: Works with OpenAI (GPT), Claude, and Google Gemini models via LiteLLM
-- ⚙️ **Environment Configuration**: Easy configuration via environment variables
-- 🏥 **Medical Focus**: Specialized prompts for medical conversation analysis
-- 📝 **Simple API**: Clean, straightforward interface for generating followups
+- 🤖 **Multi-Framework Support**: Google ADK, Crew AI, and Strands SDK integration
+- 🔄 **Multi-Model Support**: OpenAI (GPT), Claude, and Google Gemini models via LiteLLM
+- 🛠️ **Tool Integration**: Comprehensive tool registry and MCP (Model Control Plane) support
+- 📊 **Observability**: Built-in monitoring with Datadog, AWS, and Azure integration
+- 🧠 **Memory Management**: Short/long-term memory, RAG, and intelligent caching
+- ⚙️ **Configuration Management**: Environment-based and YAML configuration support
+- 🔒 **Security**: PII protection and guardrails layer
+- 📝 **API-First**: RESTful APIs with streaming and WebSocket support
+- 🏥 **Domain-Specific**: Specialized agents for medical, healthcare, and other domains
 
 ## Quick Start
 
@@ -20,16 +37,33 @@ A simple, configurable AI agent that generates followup questions for medical co
 2. **Set up environment**:
    ```bash
    cp env.example .env
-   # Edit .env with your API keys
+   # Edit .env with your API keys and configuration
    ```
 
-3. **Run the agent**:
+3. **Start the AI Agents Platform**:
    ```bash
-   # Run example
-   uv run python src.main
+   # Start the FastAPI service
+   uvicorn src.service.main:app --reload --port 8000
    
-   # Or use CLI
-   uv run python cli.py "Patient: I have chest pain. Doctor: Can you describe it?"
+   # Or run individual agents
+   uv run python src.agents.followups_generation.main_agent
+   ```
+
+4. **Test the API**:
+   ```bash
+   # Test the chat endpoint
+   curl -X POST "http://localhost:8000/api/agents/chat" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "agent_name": "medical_followup",
+          "user_id": "user-123",
+          "chat_input": {
+            "conversation_turns": [
+              {"speaker": "Patient", "text": "I have chest pain"},
+              {"speaker": "Doctor", "text": "Can you describe it?"}
+            ]
+          }
+        }'
    ```
 
 ## Configuration
@@ -244,37 +278,108 @@ uv run python test_agent.py
 uv run python test_gemini.py
 ```
 
-## Architecture
+## Platform Architecture
 
-The agent is built with a simple, clean architecture:
+The platform is built with a modular, scalable architecture:
 
 ```
 src/
-├── agents/
-│   └── followups_generation/
-│       ├── __init__.py
-│       └── agent.py          # Main agent implementation
-├── shared/
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── config.py         # Configuration management
-│   └── infrastructure/
-│       ├── __init__.py
-│       └── llm_service.py    # LiteLLM wrapper
-└── main.py                   # Example usage
+├── service/                   # FastAPI service layer
+│   ├── main.py               # FastAPI application
+│   └── routers/              # API endpoints
+├── agents/                   # Agent implementations
+│   ├── base_agent.py         # Base agent class
+│   ├── followups_generation/ # Medical followup agent
+│   └── [other_agents]/       # Additional domain agents
+├── agent_registry/           # Agent discovery and management
+│   ├── core.py              # Core registry functionality
+│   ├── discovery.py         # Auto-discovery system
+│   └── __init__.py          # Registry API
+├── configs/                  # Configuration management
+│   ├── agent_config.py      # Agent configuration
+│   └── llm_provider_config.py # LLM provider configs
+├── agent_models/             # Data models
+│   └── base_models.py       # Base input/output models
+├── observability/           # Monitoring and observability
+│   ├── base.py              # Base observability
+│   ├── opik.py              # Opik integration
+│   └── datadog.py           # Datadog integration
+└── tools/                    # Agent tools and capabilities
+    └── [tool_modules]/       # Various tool implementations
 ```
 
 ## Development
 
-The codebase follows a staff engineer approach:
-- **Simple**: Minimal complexity, easy to understand
-- **Configurable**: Environment-based configuration
-- **Maintainable**: Clear separation of concerns
+The platform follows enterprise-grade development practices:
+- **Modular**: Clean separation of concerns with pluggable components
+- **Scalable**: Built for high-throughput agent operations
+- **Observable**: Comprehensive monitoring and tracing
+- **Configurable**: Environment-based and YAML configuration
 - **Testable**: Clean interfaces and dependency injection
+- **Secure**: Built-in PII protection and guardrails
+
+## API Endpoints
+
+### Chat with Agents
+```http
+POST /api/agents/chat
+Content-Type: application/json
+
+{
+  "agent_name": "medical_followup",
+  "user_id": "user-123",
+  "session_id": "optional-session-id",
+  "chat_input": {
+    "conversation_turns": [
+      {"speaker": "Patient", "text": "I have chest pain"},
+      {"speaker": "Doctor", "text": "Can you describe it?"}
+    ],
+    "features": [
+      {"feature_name": "max_followups", "feature_value": 5}
+    ]
+  }
+}
+```
+
+### Response Format
+```json
+{
+  "success": true,
+  "user_id": "user-123",
+  "session_id": "session-id",
+  "result": {
+    "followup_questions": ["Question 1", "Question 2"],
+    "count": 2
+  }
+}
+```
 
 ## Requirements
 
 - Python 3.13+
 - Google ADK 1.14.1+
 - LiteLLM 1.77.1+
-- OpenAI or Anthropic API key
+- FastAPI 0.104+
+- Pydantic 2.0+
+- OpenAI, Anthropic, or Google API key
+
+## Deployment
+
+The platform supports multiple deployment options:
+
+- **Local Development**: `uvicorn src.service.main:app --reload`
+- **Docker**: Containerized deployment with multi-stage builds
+- **Cloud**: AWS, Azure, GCP with auto-scaling
+- **Kubernetes**: Helm charts for production deployments
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add your agent implementation
+4. Update tests and documentation
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
