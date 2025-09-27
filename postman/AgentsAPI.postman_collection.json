@@ -76,10 +76,37 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n      { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n      { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n    ],\n    \"features\": [\n      { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n    ]\n  }\n}"
+          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
         }
       },
-      "response": []
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"SYSTEM\",\n  \"success\": true,\n  \"agent_response\": \"{\\\"followup_questions\\\": [\\\"What activities trigger the chest pain?\\\", \\\"Have you experienced similar pain before?\\\", \\\"Are you taking any medications?\\\"], \\\"count\\\": 3}\"\n}"
+        }
+      ]
     },
     {
       "name": "Agents: Medical Followup - Simple Case",
@@ -95,7 +122,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n      { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" }\n    ]\n  }\n}"
+          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" }\n  ]\n}"
         }
       },
       "response": []
@@ -114,7 +141,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n      { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n      { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n      { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n      { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" }\n    ],\n    \"features\": [\n      { \"feature_name\": \"max_followups\", \"feature_value\": 5 }\n    ]\n  }\n}"
+          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 5 }\n  ]\n}"
         }
       },
       "response": []
@@ -133,7 +160,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"I have severe chest pain that started suddenly\" },\n      { \"speaker\": \"Doctor\", \"text\": \"Can you describe the pain?\" },\n      { \"speaker\": \"Patient\", \"text\": \"It's crushing, like an elephant sitting on my chest\" },\n      { \"speaker\": \"Doctor\", \"text\": \"Are you having trouble breathing?\" },\n      { \"speaker\": \"Patient\", \"text\": \"Yes, and I feel nauseous\" }\n    ],\n    \"features\": [\n      { \"feature_name\": \"max_followups\", \"feature_value\": 8 }\n    ]\n  }\n}"
+          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have severe chest pain that started suddenly\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe the pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's crushing, like an elephant sitting on my chest\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Are you having trouble breathing?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, and I feel nauseous\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 8 }\n  ]\n}"
         }
       },
       "response": []
@@ -152,7 +179,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"invalid_agent\",\n  \"user_id\": \"{{user_id}}\",\n  \"chat_input\": {\n    \"conversation_turns\": [\n      { \"speaker\": \"Patient\", \"text\": \"Test message\" }\n    ]\n  }\n}"
+          "raw": "{\n  \"agent_name\": \"invalid_agent\",\n  \"user_id\": \"{{user_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"Test message\" }\n  ]\n}"
         }
       },
       "response": []

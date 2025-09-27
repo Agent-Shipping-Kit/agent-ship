@@ -4,7 +4,7 @@ import json
 from typing import List, Optional, Type
 from pydantic import BaseModel
 from src.configs.agent_config import AgentConfig
-from src.agent_models.base_models import TextInput, TextOutput
+from src.models.base_models import TextInput, TextOutput, AgentChatRequest, AgentChatResponse
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
@@ -166,7 +166,7 @@ class BaseAgent(abc.ABC):
             return None
     
     @abc.abstractmethod
-    async def chat(self, user_id: str, session_id: str, input: BaseModel) -> BaseModel:
+    async def chat(self, agent_chat_request: AgentChatRequest) -> AgentChatResponse:
         """Chat with the agent."""
         pass
     

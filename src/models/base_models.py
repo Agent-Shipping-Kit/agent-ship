@@ -16,13 +16,18 @@ class FeatureMap(BaseModel):
     feature_name: str = Field(description="Feature name")
     feature_value: Any = Field(description="Feature value")
 
-class ConversationTurn(BaseModel):
-    """One turn in a conversation."""
-    speaker: str = Field(description="Speaker label, e.g., Patient or Doctor")
-    text: str = Field(description="What the speaker said")
-
-class ChatInput(BaseModel):
-    """List of conversation turns."""
-    conversation_turns: List[ConversationTurn] = Field(description="List of conversation turns")
+class AgentChatRequest(BaseModel):
+    agent_name: str
+    user_id: str = None
+    session_id: str = None
+    sender: str = Field(description="Sender", default="USER")
+    query: Any = Field(description="Query")
     features: Optional[List[FeatureMap]] = Field(description="List of features")
 
+class AgentChatResponse(BaseModel):
+    agent_name: str
+    user_id: str
+    session_id: str
+    sender: str = Field(description="Sender", default="SYSTEM")
+    success: bool
+    agent_response: Any

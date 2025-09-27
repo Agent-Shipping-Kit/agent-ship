@@ -1,26 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Any
 from fastapi.encoders import jsonable_encoder
-from src.agent_models.base_models import ChatInput
-from src.agent_registry import discover_agents, get_agent_instance
+from src.agent_registry import get_agent_instance
 import logging
+import json
+from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-class AgentChatRequest(BaseModel):
-    agent_name: str
-    user_id: str = None
-    session_id: str = None
-    chat_input: ChatInput
-
-class AgentChatResponse(BaseModel):
-    success: bool
-    user_id: str
-    session_id: str
-    result: Any
-
 
 @router.post("/chat")
 async def chat(request: AgentChatRequest) -> AgentChatResponse:
@@ -34,17 +21,10 @@ async def chat(request: AgentChatRequest) -> AgentChatResponse:
         agent = get_agent_instance(request.agent_name)
 
         # Delegate chat to the agent implementation
-        result = await agent.chat(user_id=request.user_id,
-                                  session_id=request.session_id,
-                                  input=request.chat_input)
+        result = await agent.chat(request)
         logger.info(f"Result from agent chat: {result}")
 
-        # Let FastAPI handle proper serialization
-        normalized = jsonable_encoder(result)
-
-        return AgentChatResponse(
-            success=True, user_id=request.user_id,
-            session_id=request.session_id, result=normalized)
+        return result
             
     except KeyError as e:
         logger.error(f"Agent not found: {e}")
