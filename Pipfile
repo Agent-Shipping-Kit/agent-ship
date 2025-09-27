@@ -19,6 +19,7 @@ click = "*"
 typing-extensions = "*"
 colorlog = "*"
 python-json-logger = "*"
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"
