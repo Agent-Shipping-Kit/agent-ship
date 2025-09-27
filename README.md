@@ -31,7 +31,11 @@ Our platform provides a complete AI agent ecosystem with:
 
 1. **Install dependencies**:
    ```bash
-   uv sync
+   # Install production dependencies
+   pipenv install
+   
+   # Or install with development dependencies
+   pipenv install --dev
    ```
 
 2. **Set up environment**:
@@ -43,10 +47,10 @@ Our platform provides a complete AI agent ecosystem with:
 3. **Start the AI Agents Platform**:
    ```bash
    # Start the FastAPI service
-   uvicorn src.service.main:app --reload --port 8000
+   pipenv run uvicorn src.service.main:app --reload --port 8000
    
    # Or run individual agents
-   uv run python src.agents.followups_generation.main_agent
+   pipenv run python src.agents.followups_generation.main_agent
    ```
 
 4. **Test the API**:
@@ -238,22 +242,22 @@ The agent includes a command-line interface for easy usage:
 
 ```bash
 # Basic usage
-uv run python cli.py "Patient: I have chest pain. Doctor: Can you describe it?"
+pipenv run python cli.py "Patient: I have chest pain. Doctor: Can you describe it?"
 
 # With context
-uv run python cli.py "conversation.txt" --context '{"patient_age": "45", "chief_complaint": "Chest pain"}'
+pipenv run python cli.py "conversation.txt" --context '{"patient_age": "45", "chief_complaint": "Chest pain"}'
 
 # Using Claude model
-uv run python cli.py "conversation.txt" --model claude --model-name claude-3-5-sonnet-20241022
+pipenv run python cli.py "conversation.txt" --model claude --model-name claude-3-5-sonnet-20241022
 
 # Using Gemini model
-uv run python cli.py "conversation.txt" --model gemini --model-name gemini-1.5-pro
+pipenv run python cli.py "conversation.txt" --model gemini --model-name gemini-1.5-pro
 
 # JSON output
-uv run python cli.py "conversation.txt" --output json
+pipenv run python cli.py "conversation.txt" --output json
 
 # Custom parameters
-uv run python cli.py "conversation.txt" --max-followups 3 --temperature 0.5
+pipenv run python cli.py "conversation.txt" --max-followups 3 --temperature 0.5
 ```
 
 ### CLI Options
@@ -272,10 +276,10 @@ Run the test suite to verify everything works:
 
 ```bash
 # Test with any available model
-uv run python test_agent.py
+pipenv run python test_agent.py
 
 # Test specifically with Gemini
-uv run python test_gemini.py
+pipenv run python test_gemini.py
 ```
 
 ## Platform Architecture
@@ -357,17 +361,47 @@ Content-Type: application/json
 ## Requirements
 
 - Python 3.13+
+- pipenv (for dependency management)
 - Google ADK 1.14.1+
 - LiteLLM 1.77.1+
-- FastAPI 0.104+
-- Pydantic 2.0+
+- FastAPI 0.116.2+
+- Pydantic 2.11.9+
 - OpenAI, Anthropic, or Google API key
+
+## Dependency Management
+
+The project supports multiple dependency management approaches:
+
+### Using pipenv (Recommended)
+```bash
+# Install dependencies
+pipenv install
+
+# Install with development dependencies
+pipenv install --dev
+
+# Run commands in the virtual environment
+pipenv run python src/service/main.py
+```
+
+### Using pip with requirements.txt
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# For development
+pip install -r requirements-dev.txt
+```
 
 ## Deployment
 
 The platform supports multiple deployment options:
 
-- **Local Development**: `uvicorn src.service.main:app --reload`
+- **Local Development**: `pipenv run uvicorn src.service.main:app --reload`
 - **Docker**: Containerized deployment with multi-stage builds
 - **Cloud**: AWS, Azure, GCP with auto-scaling
 - **Kubernetes**: Helm charts for production deployments
