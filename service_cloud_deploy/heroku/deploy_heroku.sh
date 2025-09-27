@@ -160,7 +160,11 @@ fi
 
 # Set buildpacks
 print_status "Setting up buildpacks..."
-heroku buildpacks:set heroku/python || print_warning "Buildpack already set or failed to set"
+heroku buildpacks:set heroku/python --app "$APP_NAME" || print_warning "Buildpack already set or failed to set"
+
+# Clear build cache to ensure fresh install
+print_status "Clearing build cache..."
+heroku builds:cache:purge --app "$APP_NAME" || print_warning "Cache purge failed or not needed"
 
 # Check if environment variables are set
 print_status "Checking environment variables..."
