@@ -76,7 +76,7 @@ class BaseAgent(abc.ABC):
         """Setup the Google ADK session service based on configuration."""
         logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
         
-        # Check if SESSION_STORE_URI is defined
+        # Check if AGENT_SESSION_STORE_URI is defined
         session_store_uri = os.getenv('AGENT_SESSION_STORE_URI')
         
         if session_store_uri:
