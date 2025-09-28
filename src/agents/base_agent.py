@@ -77,7 +77,7 @@ class BaseAgent(abc.ABC):
         logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
         
         # Check if SESSION_STORE_URI is defined
-        session_store_uri = os.getenv('SESSION_STORE_URI')
+        session_store_uri = os.getenv('AGENT_SESSION_STORE_URI')
         
         if session_store_uri:
             # Use DatabaseSessionService for persistent storage
@@ -86,7 +86,7 @@ class BaseAgent(abc.ABC):
             self._use_database_sessions = True
         else:
             # Use InMemorySessionService for temporary storage
-            logger.info("Using InMemorySessionService (no SESSION_STORE_URI defined)")
+            logger.info("Using InMemorySessionService (no AGENT_SESSION_STORE_URI defined)")
             self.session_service = InMemorySessionService()
             self._use_database_sessions = False
             
