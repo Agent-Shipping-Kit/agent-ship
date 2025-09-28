@@ -115,4 +115,15 @@ LOGGING_CONFIG = {
 }
 
 def configure_logging():
-    logging.config.dictConfig(LOGGING_CONFIG)
+    # On Heroku, only use console logging (no file writing allowed)
+    if os.getenv('DYNO'):
+        # Heroku environment - only console logging
+        heroku_config = LOGGING_CONFIG.copy()
+        heroku_config['handlers'] = {'console': heroku_config['handlers']['console']}
+        heroku_config['root']['handlers'] = ['console']
+        for logger_name in heroku_config['loggers']:
+            heroku_config['loggers'][logger_name]['handlers'] = ['console']
+        logging.config.dictConfig(heroku_config)
+    else:
+        # Local environment - use both console and file
+        logging.config.dictConfig(LOGGING_CONFIG)
