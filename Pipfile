@@ -20,6 +20,8 @@ typing-extensions = "*"
 colorlog = "*"
 python-json-logger = "*"
 gunicorn = "*"
+psycopg2-binary = "*"
+psycopg2 = "*"
 
 [dev-packages]
 pytest = "*"

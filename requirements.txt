@@ -35,6 +35,7 @@ authlib>=1.3.2
 # Database and Storage
 sqlalchemy>=2.0.36
 sqlalchemy-spanner>=1.0.0
+psycopg2-binary>=2.9.9
 
 # Observability and Monitoring
 opentelemetry-api>=1.27.0

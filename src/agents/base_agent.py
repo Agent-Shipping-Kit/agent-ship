@@ -1,6 +1,7 @@
 import abc
 import logging
 import json
+import os
 from typing import List, Optional, Type
 from pydantic import BaseModel
 from src.configs.agent_config import AgentConfig
@@ -9,7 +10,7 @@ from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
 from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
+from google.adk.sessions import DatabaseSessionService, InMemorySessionService
 from google.genai import types
 
 
@@ -72,9 +73,23 @@ class BaseAgent(abc.ABC):
         )
 
     def _setup_session_service(self) -> None:
-        """Setup the Google ADK session service."""
+        """Setup the Google ADK session service based on configuration."""
         logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
-        self.session_service = InMemorySessionService()
+        
+        # Check if SESSION_STORE_URI is defined
+        session_store_uri = os.getenv('SESSION_STORE_URI')
+        
+        if session_store_uri:
+            # Use DatabaseSessionService for persistent storage
+            logger.info(f"Using DatabaseSessionService...")
+            self.session_service = DatabaseSessionService(session_store_uri)
+            self._use_database_sessions = True
+        else:
+            # Use InMemorySessionService for temporary storage
+            logger.info("Using InMemorySessionService (no SESSION_STORE_URI defined)")
+            self.session_service = InMemorySessionService()
+            self._use_database_sessions = False
+            
         logger.info(f"Session service for agent: {self._get_agent_name()} created")
 
     def _setup_runner(self) -> None:
@@ -91,27 +106,37 @@ class BaseAgent(abc.ABC):
         )
         
     async def _get_or_create_session(self, user_id: str, session_id: str) -> None:
-        # Create session if it doesn't exist
-        try:
-            session = self.runner.session_service.get_session(session_id)
-            logger.info(f"Using existing session: {session_id}")
-        except:
-            logger.info(f"Creating new session: {session_id}")
-            session = await self.runner.session_service.create_session(
-                app_name=self._get_agent_name(),
-                user_id=user_id,
-                session_id=session_id
-            )
-            logger.info(f"Created session: {session_id}")
-        return session
+        """Get or create session based on session service type."""
+        logger.info(f"Using session: {session_id} for user: {user_id}")
+        
+        if self._use_database_sessions:
+            # DatabaseSessionService handles session management automatically
+            # The runner will create/retrieve/update sessions as needed
+            logger.info("Using DatabaseSessionService - session management handled by framework")
+        else:
+            # InMemorySessionService requires manual session management
+            logger.info("Using InMemorySessionService - managing sessions manually")
+            try:
+                # Try to get existing session
+                self.runner.session_service.get_session(session_id)
+                logger.info(f"Retrieved existing session: {session_id}")
+            except Exception:
+                # Create new session if it doesn't exist
+                logger.info(f"Creating new session: {session_id}")
+                await self.runner.session_service.create_session(
+                    app_name=self._get_agent_name(),
+                    user_id=user_id,
+                    session_id=session_id
+                )
+                logger.info(f"Created new session: {session_id}")
 
     async def run(self, user_id: str, session_id: str, input_data: BaseModel) -> BaseModel:
         """Run the agent with schema validation handled by ADK."""
         logger.info(f"Running agent: {self._get_agent_name()}")
         logger.info(f"Using session ID: {session_id}")
         
-        # ADK will validate input_data against input_schema automatically
-        session = await self._get_or_create_session(user_id, session_id)
+        # Handle session management based on session service type
+        await self._get_or_create_session(user_id, session_id)
         
         # Serialize structured input for the model
         input_text = input_data.model_dump_json()
@@ -122,7 +147,7 @@ class BaseAgent(abc.ABC):
             parts=[types.Part(text=input_text)]
         )
         
-        # Run the agent - ADK handles schema validation and output formatting
+        # Run the agent - ADK handles schema validation, output formatting, and session management
         # The runner.run() returns a generator, so we need to consume it
         result_generator = self.runner.run(
             user_id=user_id,

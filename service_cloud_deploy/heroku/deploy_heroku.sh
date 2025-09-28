@@ -162,6 +162,9 @@ fi
 print_status "Setting up buildpacks..."
 heroku buildpacks:set heroku/python --app "$APP_NAME" || print_warning "Buildpack already set or failed to set"
 
+# Note: PostgreSQL storage setup is handled separately
+# Run ./agent_store_deploy/setup_heroku_postgres.sh to set up PostgreSQL storage
+
 # Clear build cache to ensure fresh install
 print_status "Clearing build cache..."
 heroku builds:cache:purge --app "$APP_NAME" || print_warning "Cache purge failed or not needed"
@@ -185,6 +188,25 @@ if [ -f ".env" ]; then
             fi
         fi
     done < .env
+fi
+
+# Set SESSION_STORE_URI from PostgreSQL addon
+print_status "Setting SESSION_STORE_URI from PostgreSQL addon..."
+if heroku addons:info postgresql --app "$APP_NAME" &> /dev/null; then
+    # Get the DATABASE_URL from the PostgreSQL addon
+    DATABASE_URL=$(heroku config:get DATABASE_URL --app "$APP_NAME")
+    if [ -n "$DATABASE_URL" ]; then
+        # Set SESSION_STORE_URI to the same value as DATABASE_URL
+        if heroku config:set SESSION_STORE_URI="$DATABASE_URL" --app "$APP_NAME"; then
+            print_status "SESSION_STORE_URI set from PostgreSQL addon"
+        else
+            print_warning "Failed to set SESSION_STORE_URI"
+        fi
+    else
+        print_warning "DATABASE_URL not found. PostgreSQL addon may not be ready yet."
+    fi
+else
+    print_warning "PostgreSQL addon not found. SESSION_STORE_URI will not be set automatically."
 fi
 
 # Deploy to Heroku
