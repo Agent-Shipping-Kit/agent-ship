@@ -12,9 +12,10 @@ from google.adk import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService, InMemorySessionService
 from google.genai import types
+from dotenv import load_dotenv
 
 
-
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 
@@ -79,7 +80,7 @@ class BaseAgent(abc.ABC):
         # Check if AGENT_SESSION_STORE_URI is defined
         session_store_uri = os.getenv('AGENT_SESSION_STORE_URI')
         
-        if session_store_uri:
+        if os.getenv('AGENT_SHORT_TERM_MEMORY') == 'Database':
             # Use DatabaseSessionService for persistent storage
             logger.info(f"Using DatabaseSessionService...")
             self.session_service = DatabaseSessionService(session_store_uri)
@@ -105,30 +106,25 @@ class BaseAgent(abc.ABC):
             session_service=self.session_service,
         )
         
-    async def _get_or_create_session(self, user_id: str, session_id: str) -> None:
-        """Get or create session based on session service type."""
-        logger.info(f"Using session: {session_id} for user: {user_id}")
+    async def create_session_if_not_exists(self, user_id: str, session_id: str) -> None:
+        """Create session if it doesn't exist (handle duplicates gracefully)."""
+        logger.info(f"Ensuring session exists: {session_id} for user: {user_id}")
         
-        if self._use_database_sessions:
-            # DatabaseSessionService handles session management automatically
-            # The runner will create/retrieve/update sessions as needed
-            logger.info("Using DatabaseSessionService - session management handled by framework")
-        else:
-            # InMemorySessionService requires manual session management
-            logger.info("Using InMemorySessionService - managing sessions manually")
-            try:
-                # Try to get existing session
-                self.runner.session_service.get_session(session_id)
-                logger.info(f"Retrieved existing session: {session_id}")
-            except Exception:
-                # Create new session if it doesn't exist
-                logger.info(f"Creating new session: {session_id}")
-                await self.runner.session_service.create_session(
+        # Try to create the session - if it already exists, that's fine
+        try:
+            await self.runner.session_service.create_session(
                     app_name=self._get_agent_name(),
                     user_id=user_id,
                     session_id=session_id
-                )
-                logger.info(f"Created new session: {session_id}")
+            )
+            logger.info(f"Created new session: {session_id}")
+        except Exception as create_error:
+            # If creation fails due to duplicate key, session already exists
+            if "duplicate key" in str(create_error).lower() or "already exists" in str(create_error).lower():
+                logger.info(f"Session already exists: {session_id} for user: {user_id}")
+            else:
+                logger.error(f"Failed to create session: {create_error}")
+                raise create_error
 
     async def run(self, user_id: str, session_id: str, input_data: BaseModel) -> BaseModel:
         """Run the agent with schema validation handled by ADK."""
@@ -136,7 +132,7 @@ class BaseAgent(abc.ABC):
         logger.info(f"Using session ID: {session_id}")
         
         # Handle session management based on session service type
-        await self._get_or_create_session(user_id, session_id)
+        await self.create_session_if_not_exists(user_id, session_id)
         
         # Serialize structured input for the model
         input_text = input_data.model_dump_json()
