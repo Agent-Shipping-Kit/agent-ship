@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "HealthLogue AI Agents API",
-    "description": "Complete API collection for testing HealthLogue AI Agents service",
+    "description": "Complete API collection for testing HealthLogue AI Agents service with organized agent folders",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "d3b1a3d4-8e7f-4b06-9a66-aaaa00000001"
   },
@@ -63,147 +63,293 @@
       "response": []
     },
     {
-      "name": "Agents: Medical Followup Chat",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
-        }
-      },
-      "response": [
+      "name": "Medical Followup Agent",
+      "item": [
         {
-          "name": "Success Response",
-          "originalRequest": {
+          "name": "Basic Chat - Chest Pain",
+          "request": {
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
-            },
             "url": {
               "raw": "{{base_url}}/api/agents/chat",
               "host": ["{{base_url}}"],
               "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
             }
           },
-          "status": "OK",
-          "code": 200,
-          "_postman_previewlanguage": "json",
-          "header": [
-            { "key": "Content-Type", "value": "application/json" }
-          ],
-          "cookie": [],
-          "body": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"SYSTEM\",\n  \"success\": true,\n  \"agent_response\": \"{\\\"followup_questions\\\": [\\\"What activities trigger the chest pain?\\\", \\\"Have you experienced similar pain before?\\\", \\\"Are you taking any medications?\\\"], \\\"count\\\": 3}\"\n}"
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp stabbing pain, started after lifting boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/agents/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "agents", "chat"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "cookie": [],
+              "body": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"SYSTEM\",\n  \"success\": true,\n  \"agent_response\": \"{\\\"followup_questions\\\": [\\\"What activities trigger the chest pain?\\\", \\\"Have you experienced similar pain before?\\\", \\\"Are you taking any medications?\\\"], \\\"count\\\": 3}\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Simple Case - Headache",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 3 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complex Case - Shortness of Breath",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 5 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Emergency Case - Severe Chest Pain",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have severe chest pain that started suddenly\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe the pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's crushing, like an elephant sitting on my chest\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Are you having trouble breathing?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, and I feel nauseous\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 8 }\n  ]\n}"
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Agents: Medical Followup - Simple Case",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
+      "name": "Database Agent",
+      "item": [
+        {
+          "name": "List Tables",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"What tables are available in the database?\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" }\n  ]\n}"
+        {
+          "name": "Get Table Schema - Users",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Show me the schema for the users table\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query Table - Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Show me 5 records from the products table\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Records - Find User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Find users with email 'john@example.com'\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table Statistics - Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"What are the statistics for the orders table?\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complex Query - Product Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Show me all electronics products and their details\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Agents: Medical Followup - Complex Case",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Invalid Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"invalid_agent\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Test message\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 5 }\n  ]\n}"
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Agents: Medical Followup - Emergency Case",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
+        {
+          "name": "Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\"\n}"
+            }
+          },
+          "response": []
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have severe chest pain that started suddenly\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe the pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's crushing, like an elephant sitting on my chest\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Are you having trouble breathing?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, and I feel nauseous\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"max_followups\", \"feature_value\": 8 }\n  ]\n}"
+        {
+          "name": "Invalid JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Test message\",\n  \"features\": []\n  // Invalid JSON comment\n}"
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
-    },
-    {
-      "name": "Agents: Error Test - Invalid Agent",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"invalid_agent\",\n  \"user_id\": \"{{user_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"Test message\" }\n  ]\n}"
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Agents: Error Test - Missing Fields",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{base_url}}/api/agents/chat",
-          "host": ["{{base_url}}"],
-          "path": ["api", "agents", "chat"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"agent_name\": \"medical_followup\"\n}"
-        }
-      },
-      "response": []
+      ]
     }
   ]
 }
-
-

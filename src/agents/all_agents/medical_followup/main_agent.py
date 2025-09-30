@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 from google.adk.tools import FunctionTool
 from src.agents.configs.agent_config import AgentConfig
-from src.agents.base_agent import BaseAgent
+from src.agents.all_agents.base_agent import BaseAgent
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
 import logging
 import json

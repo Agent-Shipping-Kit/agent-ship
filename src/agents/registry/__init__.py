@@ -10,7 +10,7 @@ registry = AgentRegistry()
 discovery = AgentDiscovery(registry)
 
 # Add discovery methods to the registry
-def discover_agents(agents_dir: str = "src/agents") -> None:
+def discover_agents(agents_dir: str = "src/agents/all_agents") -> None:
     """Discover agents in the specified directory."""
     discovery.discover_agents(agents_dir)
 

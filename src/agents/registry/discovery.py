@@ -4,7 +4,7 @@ import os
 import importlib
 import logging
 from typing import Optional
-from src.agents.base_agent import BaseAgent
+from src.agents.all_agents.base_agent import BaseAgent
 from src.agents.configs.agent_config import AgentConfig
 
 logger = logging.getLogger(__name__)
