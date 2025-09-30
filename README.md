@@ -77,25 +77,27 @@ src/
 ├── service/                   # FastAPI service layer
 │   ├── main.py               # FastAPI application
 │   └── routers/              # API endpoints
-├── agents/                   # Agent implementations
+├── agents/                   # Agent implementations and related code
 │   ├── base_agent.py         # Base agent class
-│   ├── followups_generation/ # Medical followup agent
-│   └── [other_agents]/       # Additional domain agents
-├── agent_registry/           # Agent discovery and management
-│   ├── core.py              # Core registry functionality
-│   ├── discovery.py         # Auto-discovery system
-│   └── __init__.py          # Registry API
-├── configs/                  # Configuration management
-│   ├── agent_config.py      # Agent configuration
-│   └── llm_provider_config.py # LLM provider configs
+│   ├── configs/              # Configuration management
+│   │   ├── agent_config.py   # Agent configuration
+│   │   └── llm_provider_config.py # LLM provider configs
+│   ├── all_agents/           # All agent implementations
+│   │   ├── medical_followup/ # Medical followup agent
+│   │   └── [other_agents]/   # Additional domain agents
+│   ├── registry/             # Agent discovery and management
+│   │   ├── core.py          # Core registry functionality
+│   │   ├── discovery.py     # Auto-discovery system
+│   │   └── __init__.py      # Registry API
+│   ├── tools/               # Agent tools and capabilities
+│   │   └── [tool_modules]/  # Various tool implementations
+│   └── modules/             # Modular components (for future use)
 ├── models/                   # Data models
 │   └── base_models.py       # Base input/output models
-├── observability/           # Monitoring and observability
-│   ├── base.py              # Base observability
-│   ├── opik.py              # Opik integration
-│   └── datadog.py           # Datadog integration
-└── agent_tools/             # Agent tools and capabilities
-    └── [tool_modules]/       # Various tool implementations
+└── observability/           # Monitoring and observability
+    ├── base.py              # Base observability
+    ├── opik.py              # Opik integration
+    └── datadog.py           # Datadog integration
 ```
 
 ## 🚀 Quick Links

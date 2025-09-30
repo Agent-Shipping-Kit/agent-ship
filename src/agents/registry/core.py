@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Type, Optional, List, Any
 from src.agents.base_agent import BaseAgent
-from src.configs.agent_config import AgentConfig
+from src.agents.configs.agent_config import AgentConfig
 
 logger = logging.getLogger(__name__)
 

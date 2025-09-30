@@ -1,4 +1,4 @@
-from src.configs.llm_provider_config import (
+from src.agents.configs.llm_provider_config import (
     LLMModel, 
     LLMProviderName,
     LLMProviderConfig
@@ -54,5 +54,5 @@ class AgentConfig:
             temperature={self.temperature}, agent_name={self.agent_name}, description={self.description}, instruction_template={self.instruction_template})"
 
 if __name__ == "__main__":
-    agent_config = AgentConfig.from_yaml("src/agents/followups_generation/main_agent.yaml")
+    agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup/main_agent.yaml")
     print(agent_config)

@@ -4,7 +4,7 @@ import json
 import os
 from typing import List, Optional, Type
 from pydantic import BaseModel
-from src.configs.agent_config import AgentConfig
+from src.agents.configs.agent_config import AgentConfig
 from src.models.base_models import TextInput, TextOutput, AgentChatRequest, AgentChatResponse
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm

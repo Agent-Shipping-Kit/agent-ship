@@ -3,7 +3,7 @@
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 from google.adk.tools import FunctionTool
-from src.configs.agent_config import AgentConfig
+from src.agents.configs.agent_config import AgentConfig
 from src.agents.base_agent import BaseAgent
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
 import logging
@@ -32,7 +32,7 @@ class MedicalFollowupAgent(BaseAgent):
 
     def __init__(self):
         """Initialize the medical followup agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/followups_generation/main_agent.yaml")
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup/main_agent.yaml")
         super().__init__(
             agent_config=agent_config,
             input_schema=FollowupQuestionsInput,

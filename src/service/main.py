@@ -6,7 +6,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from src.agent_registry import discover_agents
+from src.agents.registry import discover_agents
 from src.service.routers.rest_router import router as rest_router
 load_dotenv()
 

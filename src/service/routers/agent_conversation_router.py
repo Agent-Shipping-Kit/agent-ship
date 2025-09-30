@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
-from src.agent_registry import get_agent_instance
+from src.agents.registry import get_agent_instance
 import logging
 import json
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
