@@ -6,6 +6,7 @@ from typing import List, Optional, Type
 from pydantic import BaseModel
 from src.agents.configs.agent_config import AgentConfig
 from src.models.base_models import TextInput, TextOutput, AgentChatRequest, AgentChatResponse
+from src.agents.modules import SessionManager, AgentConfigurator, SessionServiceFactory, ResponseParser
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
@@ -30,33 +31,41 @@ class BaseAgent(abc.ABC):
         self.input_schema = input_schema or TextInput
         self.output_schema = output_schema or TextOutput
         logger.info(f"Agent config: {self.agent_config}")
+        
+        # Initialize modular components
+        self.agent_configurator = AgentConfigurator(agent_config)
+        self.session_service, self._use_database_sessions = SessionServiceFactory.create_session_service(
+            self.agent_configurator.get_agent_name()
+        )
+        self.session_manager = SessionManager(
+            self.session_service, 
+            self.agent_configurator.get_agent_name(),
+            self._use_database_sessions
+        )
+        self.response_parser = ResponseParser(self.agent_configurator.get_model())
+        
         self._setup_agent()
         self._setup_runner()
 
     def _get_agent_name(self) -> str:
         """Get the name of the agent."""
-        logger.info(f"Getting agent name: {self.agent_config.agent_name}")
-        return self.agent_config.agent_name
+        return self.agent_configurator.get_agent_name()
     
     def _get_agent_description(self) -> str:
         """Get the description of the agent."""
-        logger.info(f"Getting description: {self.agent_config.description}")
-        return self.agent_config.description
+        return self.agent_configurator.get_agent_description()
 
     def _get_instruction_template(self) -> str:
         """Get the instruction template of the agent."""
-        logger.info(f"Getting instruction template: {self.agent_config.instruction_template}")
-        return self.agent_config.instruction_template
+        return self.agent_configurator.get_instruction_template()
 
-    def _get_model(self) -> str:
+    def _get_model(self) -> LiteLlm:
         """Get the model of the agent."""
-        logger.info(f"Getting model: {self.agent_config.model.value}")
-        return LiteLlm(self.agent_config.model.value)
+        return self.agent_configurator.get_model()
     
     def _get_agent_config(self) -> AgentConfig:
         """Get the configuration of the agent."""
-        logger.info(f"Getting agent config: {self.agent_config}")
-        return self.agent_config
+        return self.agent_configurator.get_agent_config()
 
     def _setup_agent(self) -> None:
         """Setup the Google ADK agent with tools."""
@@ -73,58 +82,14 @@ class BaseAgent(abc.ABC):
             output_schema=self.output_schema,
         )
 
-    def _setup_session_service(self) -> None:
-        """Setup the Google ADK session service based on configuration."""
-        logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
-        
-        # Check if AGENT_SESSION_STORE_URI is defined
-        session_store_uri = os.getenv('AGENT_SESSION_STORE_URI')
-        
-        if os.getenv('AGENT_SHORT_TERM_MEMORY') == 'Database':
-            # Use DatabaseSessionService for persistent storage
-            logger.info(f"Using DatabaseSessionService...")
-            self.session_service = DatabaseSessionService(session_store_uri)
-            self._use_database_sessions = True
-        else:
-            # Use InMemorySessionService for temporary storage
-            logger.info("Using InMemorySessionService (no AGENT_SESSION_STORE_URI defined)")
-            self.session_service = InMemorySessionService()
-            self._use_database_sessions = False
-            
-        logger.info(f"Session service for agent: {self._get_agent_name()} created")
-
     def _setup_runner(self) -> None:
         """Setup the Google ADK runner."""
-        logger.info(f"Setting up session service for agent: {self._get_agent_name()}")
-        self._setup_session_service()
-        logger.info(f"Session service for agent: {self._get_agent_name()} created")
-
         logger.info(f"Setting up runner for agent: {self._get_agent_name()}")
         self.runner = Runner(
             agent=self.agent,
             app_name=self._get_agent_name(),
             session_service=self.session_service,
         )
-        
-    async def create_session_if_not_exists(self, user_id: str, session_id: str) -> None:
-        """Create session if it doesn't exist (handle duplicates gracefully)."""
-        logger.info(f"Ensuring session exists: {session_id} for user: {user_id}")
-        
-        # Try to create the session - if it already exists, that's fine
-        try:
-            await self.runner.session_service.create_session(
-                    app_name=self._get_agent_name(),
-                    user_id=user_id,
-                    session_id=session_id
-            )
-            logger.info(f"Created new session: {session_id}")
-        except Exception as create_error:
-            # If creation fails due to duplicate key, session already exists
-            if "duplicate key" in str(create_error).lower() or "already exists" in str(create_error).lower():
-                logger.info(f"Session already exists: {session_id} for user: {user_id}")
-            else:
-                logger.error(f"Failed to create session: {create_error}")
-                raise create_error
 
     async def run(self, user_id: str, session_id: str, input_data: BaseModel) -> BaseModel:
         """Run the agent with schema validation handled by ADK."""
@@ -132,7 +97,7 @@ class BaseAgent(abc.ABC):
         logger.info(f"Using session ID: {session_id}")
         
         # Handle session management based on session service type
-        await self.create_session_if_not_exists(user_id, session_id)
+        await self.session_manager.ensure_session_exists(user_id, session_id)
         
         # Serialize structured input for the model
         input_text = input_data.model_dump_json()
