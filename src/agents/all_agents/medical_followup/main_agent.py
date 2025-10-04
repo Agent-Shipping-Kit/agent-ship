@@ -7,6 +7,7 @@ from src.agents.configs.agent_config import AgentConfig
 from src.agents.all_agents.base_agent import BaseAgent
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
 import logging
+import opik
 import json
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class MedicalFollowupAgent(BaseAgent):
     def __init__(self):
         """Initialize the medical followup agent."""
         agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup/main_agent.yaml")
+
         super().__init__(
             agent_config=agent_config,
             input_schema=FollowupQuestionsInput,
@@ -40,25 +42,40 @@ class MedicalFollowupAgent(BaseAgent):
         )
         self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Medical Followup Agent initialized: {self.agent_config}")
-    
-    async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
-        """Chat with the agent."""
-        logger.info(f"Chatting with the agent: {self._get_agent_name()}")
+
+    @opik.track
+    def get_num_followups(self, features: List[FeatureMap]) -> int:
+        """Get the number of followups from the features."""
         max_followups = 3
-        if request.features:
-            for feature_map in request.features:
+        if features:
+            for feature_map in features:
                 if feature_map.feature_name == "max_followups":
                     max_followups = feature_map.feature_value
+        logger.debug(f"Max followups: {max_followups}")
+        return max_followups
 
-        logger.info(f"Max followups: {max_followups}")
-
-        # Parse the query into ConversationTurn objects
+    def parse_conversation_turns(self, query: List[Dict]) -> List[ConversationTurn]:
+        """Parse the query into ConversationTurn objects."""
         try:
-            conversation_turns = [ConversationTurn(**turn) for turn in request.query]
+            conversation_turns = [ConversationTurn(**turn) for turn in query]
+            logger.debug(f"Conversation turns: {conversation_turns}")
+            return conversation_turns
         except (TypeError, ValueError, KeyError) as e:
             logger.error(f"Failed to parse conversation query: {e}")
             # Fallback: treat as a single conversation turn
-            conversation_turns = [ConversationTurn(speaker="Patient", text=str(request.query))]
+            conversation_turns = [ConversationTurn(speaker="Patient", text=str(query))]
+            return conversation_turns
+        except Exception as e:
+            logger.error(f"Failed to parse conversation query: {e}")
+            return []
+
+    async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
+        """Chat with the agent."""
+        logger.debug(f"Chatting with the agent: {self._get_agent_name()}")
+        max_followups = self.get_num_followups(request.features)
+        conversation_turns = self.parse_conversation_turns(request.query)
+        logger.debug(f"Conversation turns: {conversation_turns}")
+
         try:
             result = await self.run(
                 request.user_id,

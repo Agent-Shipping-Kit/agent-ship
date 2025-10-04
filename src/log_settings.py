@@ -36,6 +36,11 @@ def get_config():
 
 config = get_config()
 
+# Respect explicit LOG_LEVEL env var across all environments
+_env_log_level = os.getenv("LOG_LEVEL")
+if _env_log_level:
+    config.LOG_LEVEL = _env_log_level.upper()
+
 # Define the formatters
 console_formatter = colorlog.ColoredFormatter(
     "%(log_color)s[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
@@ -102,6 +107,17 @@ LOGGING_CONFIG = {
     },
     "loggers": {
         "uvicorn": {
+            "level": config.LOG_LEVEL,
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
+        # Common noisy libraries; align them to configured level
+        "litellm": {
+            "level": config.LOG_LEVEL,
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
+        "httpx": {
             "level": config.LOG_LEVEL,
             "handlers": ["console", "file"],
             "propagate": False,

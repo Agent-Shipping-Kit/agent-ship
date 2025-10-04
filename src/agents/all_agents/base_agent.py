@@ -1,7 +1,7 @@
 import abc
 import logging
 import json
-import os
+import opik
 from typing import List, Optional, Type
 from pydantic import BaseModel
 from src.agents.configs.agent_config import AgentConfig
@@ -11,9 +11,9 @@ from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
 from google.adk.runners import Runner
-from google.adk.sessions import DatabaseSessionService, InMemorySessionService
 from google.genai import types
 from dotenv import load_dotenv
+from src.agents.observability.opik import OpikObserver
 
 
 load_dotenv()
@@ -43,7 +43,9 @@ class BaseAgent(abc.ABC):
             self._use_database_sessions
         )
         self.response_parser = ResponseParser(self.agent_configurator.get_model())
-        
+        # Observability
+        self._setup_observability()
+
         self._setup_agent()
         self._setup_runner()
 
@@ -76,15 +78,42 @@ class BaseAgent(abc.ABC):
         logger.info(f"Created {len(tools)} tools for agent: {self._get_agent_name()}")
         
         # Create agent configuration with input/output schemas and tools
-        self.agent = Agent(
-            model=self._get_model(),
-            name=self._get_agent_name(),
-            description=self._get_agent_description(),
-            instruction=self._get_instruction_template(),
-            input_schema=self.input_schema,
-            output_schema=self.output_schema,
-            tools=tools,
-        )
+        agent_kwargs = {
+            "model": self._get_model(),
+            "name": self._get_agent_name(),
+            "description": self._get_agent_description(),
+            "instruction": self._get_instruction_template(),
+            "input_schema": self.input_schema,
+            "output_schema": self.output_schema,
+            "tools": tools,
+        }
+        
+        # Add observability callbacks only if observer is available
+        if self.observer:
+            agent_kwargs.update({
+                "before_agent_callback": self.observer.before_agent_callback,
+                "after_agent_callback": self.observer.after_agent_callback,
+                "before_model_callback": self.observer.before_model_callback,
+                "after_model_callback": self.observer.after_model_callback,
+                "before_tool_callback": self.observer.before_tool_callback,
+                "after_tool_callback": self.observer.after_tool_callback
+            })
+        else:
+            logger.warning("No observability observer available - tracing will be disabled")
+        
+        self.agent = Agent(**agent_kwargs)
+
+    def _setup_observability(self) -> None:
+        """Setup the observability for the agent."""
+        logger.info(f"Setting up observer for agent: {self._get_agent_name()}")
+        try:
+            self.observer = OpikObserver(
+                agent_config=self.agent_config
+            )
+        except Exception as e:
+            logger.error(f"Failed to setup observability: {e}")
+            # Create a no-op observer to prevent errors
+            self.observer = None
 
     def _setup_runner(self) -> None:
         """Setup the Google ADK runner."""
@@ -95,10 +124,11 @@ class BaseAgent(abc.ABC):
             session_service=self.session_service,
         )
 
+
     async def run(self, user_id: str, session_id: str, input_data: BaseModel) -> BaseModel:
         """Run the agent with schema validation handled by ADK."""
         logger.info(f"Running agent: {self._get_agent_name()}")
-        logger.info(f"Using session ID: {session_id}")
+        logger.debug(f"Using session ID: {session_id}")
         
         # Handle session management based on session service type
         await self.session_manager.ensure_session_exists(user_id, session_id)
@@ -119,7 +149,7 @@ class BaseAgent(abc.ABC):
             session_id=session_id,
             new_message=content
         )
-        
+
         # Consume the generator to get the final result
         # The generator yields multiple events: function calls, tool results, final response
         result = None
@@ -131,26 +161,26 @@ class BaseAgent(abc.ABC):
                 response.content.parts[0].text):
                 result = response
         
-        logger.info(f"Result: {result}")
+        logger.debug(f"Result: {result}")
         # Parse the result according to output_schema
         return self._parse_agent_response(result)
     
     def _parse_agent_response(self, result) -> BaseModel:
         """Parse the agent response according to the output schema."""
         # Extract the content from the Event object and parse it according to output_schema
-        logger.info(f"Parsing agent response: {result}")
+        logger.debug(f"Parsing agent response: {result}")
         if result and hasattr(result, 'content') and result.content and result.content.parts:
             # Extract the text content from the event
             content_text = result.content.parts[0].text
             
             # Parse the JSON content according to our output schema
             try:
-                logger.info(f"Parsing agent response: {content_text}")
+                logger.debug(f"Parsing agent response: {content_text}")
                 parsed_data = json.loads(content_text)
                 # Create the output schema instance
-                logger.info(f"Parsed data: {parsed_data}")
+                logger.debug(f"Parsed data: {parsed_data}")
                 output_instance = self.output_schema(**parsed_data)
-                logger.info(f"Output instance: {output_instance}")
+                logger.debug(f"Output instance: {output_instance}")
                 return output_instance
             except (json.JSONDecodeError, TypeError, ValueError) as e:
                 logger.error(f"Failed to parse output: {e}")

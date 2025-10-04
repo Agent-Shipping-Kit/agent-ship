@@ -50,4 +50,6 @@ app.include_router(rest_router)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7001))
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+    # Respect LOG_LEVEL env var; fallback to INFO
+    uvicorn_log_level = os.environ.get("LOG_LEVEL", "INFO").lower()
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level=uvicorn_log_level)
