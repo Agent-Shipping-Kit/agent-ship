@@ -1,6 +1,5 @@
 from src.agents.observability.base import BaseObservaber
 from opik.integrations.adk import OpikTracer
-import os
 import opik
 import logging
 from src.agents.configs.opik_config import opik_settings
@@ -37,6 +36,7 @@ class OpikObserver(BaseObservaber):
                     "model": self.agent_config.model.value,
                     "environment": opik_settings.ENVIRONMENT,
                     "framework": opik_settings.OPIK_FRAMEWORK,
+                    "tracing_methods": opik_settings.OPIK_TRACING_METHODS,
                     "litellm_integration": opik_settings.OPIK_LITTELM_INTEGRATION
                 },
                 project_name= opik_settings.OPIK_PROJECT_NAME

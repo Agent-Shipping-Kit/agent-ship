@@ -3,6 +3,7 @@
 import json
 import logging
 from typing import Dict, Any, List, Optional
+import opik
 from src.agents.tools.base_tool import BaseTool
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
@@ -36,6 +37,7 @@ class DatabaseInfoTool(BaseTool):
             ]
         }
     
+    @opik.track(name="database_tool_run", tags=["database_tool"])
     def run(self, input: str) -> str:
         """Run the database tool with the given input.
         
@@ -86,6 +88,7 @@ class DatabaseInfoTool(BaseTool):
             logger.error(f"Error in database tool: {e}")
             return json.dumps({"error": str(e)})
     
+    @opik.track(name="database_tool_list_tables", tags=["database_tool"])
     def _list_tables(self) -> str:
         """List all available tables."""
         tables = list(self.sample_data.keys())
@@ -94,6 +97,7 @@ class DatabaseInfoTool(BaseTool):
             "count": len(tables)
         })
     
+    @opik.track(name="database_tool_get_table_schema", tags=["database_tool"])
     def _get_table_schema(self, table_name: str) -> str:
         """Get the schema of a specific table."""
         if not table_name:
@@ -113,6 +117,7 @@ class DatabaseInfoTool(BaseTool):
         
         return json.dumps(schema)
     
+    @opik.track(name="database_tool_query_table", tags=["database_tool"])
     def _query_table(self, table_name: str, limit: int = 10) -> str:
         """Query a table with a limit."""
         if not table_name:
@@ -129,6 +134,7 @@ class DatabaseInfoTool(BaseTool):
             "total_available": len(self.sample_data[table_name])
         })
     
+    @opik.track(name="database_tool_search_records", tags=["database_tool"])
     def _search_records(self, table_name: str, search_field: str, search_value: str) -> str:
         """Search for records in a table."""
         if not all([table_name, search_field, search_value]):
@@ -151,6 +157,7 @@ class DatabaseInfoTool(BaseTool):
             "count": len(matching_records)
         })
     
+    @opik.track(name="database_tool_get_table_stats", tags=["database_tool"])
     def _get_table_stats(self, table_name: str) -> str:
         """Get statistics for a table."""
         if not table_name:
@@ -195,6 +202,7 @@ class DatabaseInfoTool(BaseTool):
         
         return json.dumps(stats)
     
+    @opik.track(name="database_tool_to_function_tool", tags=["database_tool"])
     def to_function_tool(self) -> FunctionTool:
         """Convert this tool to a Google ADK FunctionTool."""
         return FunctionTool(

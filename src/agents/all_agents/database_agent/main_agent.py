@@ -1,6 +1,7 @@
 """Database information fetching agent."""
 
 import logging
+import opik
 from typing import List
 from src.agents.all_agents.base_agent import BaseAgent
 from src.agents.configs.agent_config import AgentConfig

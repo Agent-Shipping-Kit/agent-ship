@@ -33,7 +33,7 @@ class MedicalFollowupAgent(BaseAgent):
 
     def __init__(self):
         """Initialize the medical followup agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup/main_agent.yaml")
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup_agent/main_agent.yaml")
 
         super().__init__(
             agent_config=agent_config,
