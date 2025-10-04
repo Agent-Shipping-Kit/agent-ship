@@ -2,6 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+from typing import Literal
 
 
 load_dotenv()
@@ -17,6 +18,7 @@ class OpikSettings(BaseSettings):
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     OPIK_FRAMEWORK: str = "google-adk"
     OPIK_LITTELM_INTEGRATION: str = "true"
+    OPIK_FILE_LOGGING_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = os.getenv("OPIK_FILE_LOGGING_LEVEL", "INFO")
 
 
 opik_settings = OpikSettings()
