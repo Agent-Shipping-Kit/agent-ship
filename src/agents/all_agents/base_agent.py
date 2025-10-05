@@ -2,7 +2,8 @@ import abc
 import logging
 import json
 import opik
-from typing import List, Optional, Type
+from enum import Enum
+from typing import Any, List, Optional, Type
 from pydantic import BaseModel
 from src.agents.configs.agent_config import AgentConfig
 from src.models.base_models import TextInput, TextOutput, AgentChatRequest, AgentChatResponse
@@ -10,6 +11,7 @@ from src.agents.modules import SessionManager, AgentConfigurator, SessionService
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
+from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 from google.adk.runners import Runner
 from google.genai import types
 from dotenv import load_dotenv
@@ -20,14 +22,23 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
+class AgentType(Enum):
+    """Enum for the type of agent."""
+    LLM_AGENT = "llm_agent"
+    PARALLEL_AGENT = "parallel_agent"
+    SEQUENTIAL_AGENT = "sequential_agent"
+
+
 class BaseAgent(abc.ABC):
     """Base class for all agents."""
 
     def __init__(self, agent_config: AgentConfig, 
                  input_schema: Optional[Type[BaseModel]] = None,
-                 output_schema: Optional[Type[BaseModel]] = None):
+                 output_schema: Optional[Type[BaseModel]] = None,
+                 agent_type: Optional[AgentType] = None):
         """Initialize the agent."""
         self.agent_config = agent_config
+        self.agent_type = agent_type or AgentType.LLM_AGENT
         self.input_schema = input_schema or TextInput
         self.output_schema = output_schema or TextOutput
         logger.info(f"Agent config: {self.agent_config}")
@@ -76,6 +87,9 @@ class BaseAgent(abc.ABC):
         # Get tools from the agent implementation
         tools = self._create_tools()
         logger.info(f"Created {len(tools)} tools for agent: {self._get_agent_name()}")
+
+        sub_agents = self._create_sub_agents()
+        logger.info(f"Created {len(sub_agents)} sub-agents for agent: {self._get_agent_name()}")
         
         # Create agent configuration with input/output schemas and tools
         agent_kwargs = {
@@ -86,6 +100,7 @@ class BaseAgent(abc.ABC):
             "input_schema": self.input_schema,
             "output_schema": self.output_schema,
             "tools": tools,
+            "sub_agents": sub_agents,
         }
         
         # Add observability callbacks only if observer is available
@@ -101,8 +116,23 @@ class BaseAgent(abc.ABC):
         else:
             logger.warning("No observability observer available - tracing will be disabled")
         
-        self.agent = Agent(**agent_kwargs)
+        self.agent = self._create_agent_from_type(agent_kwargs)
 
+    def _create_agent_from_type(self, agent_kwargs: dict) -> Agent:
+        """Create the agent."""
+        if self._get_agent_type() == AgentType.LLM_AGENT:
+            return LlmAgent(**agent_kwargs)
+        elif self._get_agent_type() == AgentType.PARALLEL_AGENT:
+            return ParallelAgent(**agent_kwargs)
+        elif self._get_agent_type() == AgentType.SEQUENTIAL_AGENT:
+            return SequentialAgent(**agent_kwargs)
+
+        return Agent(**self.agent_kwargs)
+    
+    def _get_agent_type(self) -> AgentType:
+        """Get the type of the agent."""
+        return self.agent_type
+    
     def _setup_observability(self) -> None:
         """Setup the observability for the agent."""
         logger.info(f"Setting up observer for agent: {self._get_agent_name()}")
@@ -198,4 +228,9 @@ class BaseAgent(abc.ABC):
     @abc.abstractmethod
     def _create_tools(self) -> List[FunctionTool]:
         """Create the tools for the agent."""
+        pass
+
+    @abc.abstractmethod
+    def _create_sub_agents(self) -> List[Agent]:
+        """Create the sub-agents for the agent."""
         pass

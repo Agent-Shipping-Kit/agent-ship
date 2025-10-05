@@ -18,7 +18,7 @@ class DatabaseAgent(BaseAgent):
 
     def __init__(self):
         """Initialize the database agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/database_agent/main_agent.yaml")
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/tool_pattern/main_agent.yaml")
         super().__init__(
             agent_config=agent_config,
             input_schema=TextInput,

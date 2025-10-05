@@ -1,3 +1,4 @@
+
 """Medical conversation followup generation agent using Google ADK."""
 
 from typing import List, Optional, Dict
@@ -5,38 +6,36 @@ from pydantic import BaseModel, Field
 from google.adk.tools import FunctionTool
 from src.agents.configs.agent_config import AgentConfig
 from src.agents.all_agents.base_agent import BaseAgent
-from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
+from src.models.base_models import AgentChatRequest, AgentChatResponse
+from google.adk import Agent
 import logging
-import opik
-import json
 
 logger = logging.getLogger(__name__)
 
-class TranslationInput(BaseModel):
-    """Input for followup questions generation."""
-    text: str = Field(description="The text to translate.")
-    from_language: str = Field(description="The language of the text to translate from.")
-    to_language: str = Field(description="The language of the text to translate to.")
+class SummaryInput(BaseModel):
+    """Input for summary generation."""
+    flight_plan: str = Field(description="The flight plan.")
+    hotel_plan: str = Field(description="The hotel plan.")
 
-class TranslationOutput(BaseModel):
-    """Output for followup questions generation."""
-    translated_text: str = Field(description="The translated text.")
+class SummaryOutput(BaseModel):
+    """Output for summary generation."""
+    summary: str = Field(description="The summary of the trip.")
 
 
-class TranslationAgent(BaseAgent):
-    """Agent for generating translation."""
+class SummaryAgent(BaseAgent):
+    """Agent for generating summary."""    
 
     def __init__(self):
-        """Initialize the translation agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/translation_single_agent_pattern/main_agent.yaml")
+        """Initialize the summary agent."""
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/orchestrator_pattern/sub_agents/summary_agent.yaml")
 
         super().__init__(
             agent_config=agent_config,
-            input_schema=TranslationInput,
-            output_schema=TranslationOutput
+            input_schema=SummaryInput,
+            output_schema=SummaryOutput
         )
         self._setup_agent() # Setup the Google ADK agent with tools
-        logger.info(f"Translation Agent initialized: {self.agent_config}")
+        logger.info(f"Summary Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
         """Chat with the agent."""
@@ -46,14 +45,13 @@ class TranslationAgent(BaseAgent):
             result = await self.run(
                 request.user_id,
                 request.session_id,
-                TranslationInput(
-                    text=request.query["text"],
-                    from_language=request.query["from_language"],
-                    to_language=request.query["to_language"]
+                SummaryInput(
+                    flight_plan=request.query["flight_plan"],
+                    hotel_plan=request.query["hotel_plan"]
                 )
             )
 
-            logger.info(f"Result from translation agent: {result}")
+            logger.info(f"Result from summary agent: {result}")
 
             return AgentChatResponse(
                 agent_name=self._get_agent_name(),
@@ -63,7 +61,7 @@ class TranslationAgent(BaseAgent):
                 agent_response=result
             )
         except Exception as e:
-            logger.error(f"Error in translation agent: {e}")
+            logger.error(f"Error in summary agent: {e}")
             return AgentChatResponse(
                 agent_name=self._get_agent_name(),
                 user_id=request.user_id,
@@ -71,6 +69,10 @@ class TranslationAgent(BaseAgent):
                 success=False,
                 agent_response=f"Error: {str(e)}"
             )
+    
+    def _create_sub_agents(self) -> List[Agent]:
+        """Create the sub-agents for the agent."""
+        return []
     
     def _create_tools(self) -> List[FunctionTool]:
         """Create tools for the agent."""
@@ -82,14 +84,14 @@ if __name__ == "__main__":
     import hashlib
     
     async def main():
-        agent = TranslationAgent()
+        agent = HotelPlannerAgent()
         
         # Generate a deterministic session ID
         user_id = "123"
         session_id = hashlib.md5(f"{user_id}".encode()).hexdigest()[:8]
         print(f"Generated session ID: {session_id}")
         
-        query = {"text": "I have chest pain.", "from_language": "en", "to_language": "es"}
+        query = {"destination": "Los Angeles"}
 
         features = []
 
