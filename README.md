@@ -1,72 +1,20 @@
 # HealthLogue AI Agents Platform
 
-A comprehensive AI agent development platform that provides a complete ecosystem for building, deploying, and managing AI agents with integrated tools, observability, and memory management.
+A cookie-cutter AI agents template you can fork, customize, and deploy. It provides a complete ecosystem for building, observing, and operating AI agents using Google ADK.
 
-## 🏗️ Architecture
+## 🏗️ Architecture (The End Game)
 
-![AI Agents Architecture](architecture.jpg)
+![AI Agents Architecture](AgenticAI.jpg)
 
 Our platform provides a complete AI agent ecosystem with:
 
+#### ✨ Features
 - **FastAPI Layer**: HTTP/chat, SSE/chat-streaming, WebSocket support with guardrails, observability, and PII security
-- **AI Backend**: Multi-framework support (Crew AI, Strands SDK, Google ADK) with LLM provider integration
-- **Observability**: Integrated with Datadog, AWS, and Azure for comprehensive monitoring
-- **Memory Management**: Short/long-term memory, RAG, and caching with DiceDB, PostgreSQL, S3, and OpenSearch
-- **Operations**: Prompt versioning, evaluation management, and tracing via Opik integration
+- **AI Backend**: Google ADK framework (only) with multiple LLM provider integration like Google Gemini, OpenAI Chatgpt, Claude etc.
+- **Memory Management**: Short/long-term memory with Postgres, RAG with Opensearch, and caching with DiceDB and flat file interaction with S3.
+- **Observability**: Native Opik integration for tracing and metric
+- **Operations**: Prompt versioning, evals, and evals tracing via Opik SDK integration
 - **Tools & MCP**: Comprehensive tool registry and Model Control Plane for agent capabilities
-
-## ✨ Features
-
-- 🤖 **Multi-Framework Support**: Google ADK, Crew AI, and Strands SDK integration
-- 🔄 **Multi-Model Support**: OpenAI (GPT), Claude, and Google Gemini models via LiteLLM
-- 🛠️ **Tool Integration**: Comprehensive tool registry and MCP (Model Control Plane) support
-- 📊 **Observability**: Built-in monitoring with Datadog, AWS, and Azure integration
-- 🧠 **Memory Management**: Short/long-term memory, RAG, and intelligent caching
-- ⚙️ **Configuration Management**: Environment-based and YAML configuration support
-- 🔒 **Security**: PII protection and guardrails layer
-- 📝 **API-First**: RESTful APIs with streaming and WebSocket support
-- 🏥 **Domain-Specific**: Specialized agents for medical, healthcare, and other domains
-
-## 🚀 Quick Start
-
-```bash
-# Install dependencies
-pipenv install
-
-# Set up environment
-cp env.example .env
-# Edit .env with your API keys
-
-# Start the service
-pipenv run uvicorn src.service.main:app --reload --port 7001
-```
-
-**Service URL**: http://localhost:7001  
-**API Docs**: http://localhost:7001/docs
-
-## 📚 Documentation
-
-This repository contains comprehensive documentation organized by purpose:
-
-### 🏠 Main Documentation
-- **[LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)** - Complete local setup and development guide
-- **[service_cloud_deploy/heroku/README.md](service_cloud_deploy/heroku/README.md)** - Heroku deployment and debugging
-- **[agent_store_deploy/README.md](agent_store_deploy/README.md)** - PostgreSQL database setup
-- **[postman/README.md](postman/README.md)** - API testing with Postman
-
-### 🔧 Configuration
-
-The system uses a clean configuration structure: API keys in environment variables, model selection in code.
-
-**Required Environment Variables:**
-- `OPENAI_API_KEY` - OpenAI API key
-- `ANTHROPIC_API_KEY` - Anthropic API key  
-- `GOOGLE_API_KEY` - Google API key
-
-**Supported Models:**
-- **OpenAI**: `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`
-- **Claude**: `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`
-- **Google**: `gemini-1.5-pro`, `gemini-1.5-flash`
 
 ## 🏗️ Platform Architecture
 
@@ -96,9 +44,44 @@ src/
 │   └── base_models.py       # Base input/output models
 └── observability/           # Monitoring and observability
     ├── base.py              # Base observability
-    ├── opik.py              # Opik integration
-    └── datadog.py           # Datadog integration
+    └── opik.py              # Opik integration
 ```
+
+## 🍪 Using this template
+
+1. Fork this repository
+2. Clone locally and copy `env.example` to `.env`
+3. Start the service and open `/docs` for APIs
+4. Customize agents in `src/agents/` (YAML/Python) and routes in `src/service/routers/`
+5. Configure Opik for observability and iterate
+6. Deploy to Heroku when ready
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+pipenv install
+
+# Set up environment
+cp env.example .env
+# Edit .env with your API keys
+
+# Start the service
+pipenv run uvicorn src.service.main:app --reload --port 7001
+```
+
+**Service URL**: http://localhost:7001  
+**API Docs**: http://localhost:7001/docs
+
+## 📚 Documentation
+
+This repository contains comprehensive documentation organized by purpose:
+
+### 🏠 Main Documentation
+- **[LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)** - Complete local setup and development guide
+- **[service_cloud_deploy/heroku/README.md](service_cloud_deploy/heroku/README.md)** - Heroku deployment and debugging
+- **[agent_store_deploy/README.md](agent_store_deploy/README.md)** - PostgreSQL database setup
+- **[postman/README.md](postman/README.md)** - API testing with Postman
 
 ## 🚀 Quick Links
 
@@ -111,7 +94,7 @@ src/
 
 - Python 3.13+
 - pipenv (recommended) or pip
-- At least one API key: OpenAI, Anthropic, or Google
+- `GOOGLE_API_KEY`
 
 ## 📄 License
 
