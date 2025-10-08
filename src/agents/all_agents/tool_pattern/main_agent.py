@@ -45,6 +45,11 @@ class DatabaseAgent(BaseAgent):
             agent_response=result.response if hasattr(result, 'response') else str(result)
         )
 
+    def _create_sub_agents(self) -> List[BaseAgent]:
+        """Create the sub-agents for the database agent."""
+        logger.info("Creating database sub-agents")
+        return []
+
     def _create_tools(self) -> List[FunctionTool]:
         """Create the tools for the database agent."""
         logger.info("Creating database tools")

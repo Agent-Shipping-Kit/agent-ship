@@ -105,6 +105,11 @@ class MedicalFollowupAgent(BaseAgent):
                 agent_response=f"Error: {str(e)}"
             )
     
+    def _create_sub_agents(self) -> List[BaseAgent]:
+        """Create the sub-agents for the medical followup agent."""
+        logger.info("Creating medical followup sub-agents")
+        return []
+
     def _create_tools(self) -> List[FunctionTool]:
         """Create tools for the agent."""
         return []

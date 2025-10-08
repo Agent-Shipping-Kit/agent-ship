@@ -72,6 +72,11 @@ class TranslationAgent(BaseAgent):
                 agent_response=f"Error: {str(e)}"
             )
     
+    def _create_sub_agents(self) -> List[BaseAgent]:
+        """Create the sub-agents for the translation agent."""
+        logger.info("Creating translation sub-agents")
+        return []
+
     def _create_tools(self) -> List[FunctionTool]:
         """Create tools for the agent."""
         return []
