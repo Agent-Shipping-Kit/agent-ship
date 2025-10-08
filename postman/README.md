@@ -61,10 +61,10 @@ The collection is organized into folders for better testing:
 - **Health Check**: `http://localhost:7001/health`
 - **API Docs**: `http://localhost:7001/docs`
 
-### Production (Heroku)
-- **Base URL**: `https://ai-agents-alpha-797b03a63fa9.herokuapp.com`
-- **Health Check**: `https://ai-agents-alpha-797b03a63fa9.herokuapp.com/health`
-- **API Docs**: `https://ai-agents-alpha-797b03a63fa9.herokuapp.com/docs`
+### Production
+- **Base URL**: `https://your-production-url.herokuapp.com` (replace with your actual production URL)
+- **Health Check**: `https://your-production-url.herokuapp.com/health`
+- **API Docs**: `https://your-production-url.herokuapp.com/docs`
 
 ## 📋 Available Endpoints
 
@@ -255,7 +255,7 @@ GET {{base_url}}/health
 
 ### Switch to Production
 1. Select "HealthLogue AI Agents Environment"
-2. Change `base_url` to `https://ai-agents-alpha-797b03a63fa9.herokuapp.com`
+2. Change `base_url` to your actual production URL (e.g., `https://your-app.herokuapp.com`)
 3. Or use `base_url_production` variable
 
 ## 📚 Related Documentation

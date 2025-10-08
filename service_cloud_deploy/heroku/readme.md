@@ -35,7 +35,7 @@ This directory contains scripts and documentation for deploying the AI Agents se
 ## 📊 App Information
 
 - **App Name**: `ai-agents-alpha`
-- **URL**: https://ai-agents-alpha-797b03a63fa9.herokuapp.com/
+- **URL**: `https://your-app-name.herokuapp.com/` (replace with your actual URL)
 - **Plan**: Eco (512MB memory)
 - **Database**: PostgreSQL (essential-0 plan)
 
@@ -132,14 +132,14 @@ git push heroku main
 ### Health Check
 ```bash
 # Test health endpoint
-curl https://ai-agents-alpha-797b03a63fa9.herokuapp.com/health
+curl https://your-app-name.herokuapp.com/health
 
 # Expected response: {"status":"running"}
 ```
 
 ### API Documentation
-- **Swagger UI**: https://ai-agents-alpha-797b03a63fa9.herokuapp.com/docs
-- **ReDoc**: https://ai-agents-alpha-797b03a63fa9.herokuapp.com/redoc
+- **Swagger UI**: `https://your-app-name.herokuapp.com/docs`
+- **ReDoc**: `https://your-app-name.herokuapp.com/redoc`
 
 ## 🗄️ Database Setup
 
