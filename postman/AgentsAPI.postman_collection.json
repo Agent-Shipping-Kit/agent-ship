@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "HealthLogue AI Agents API",
-    "description": "Complete API collection for testing HealthLogue AI Agents service with organized agent folders",
+    "name": "Ship AI Agents API",
+    "description": "Complete API collection for testing Ship AI Agents service with organized agent folders",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "d3b1a3d4-8e7f-4b06-9a66-aaaa00000001"
   },

@@ -1,4 +1,4 @@
-# HealthLogue AI Agents - API Testing with Postman
+# Ship AI Agents - API Testing with Postman
 
 This directory contains Postman collections and environments for testing the AI Agents API with organized agent folders.
 
@@ -42,11 +42,11 @@ The collection is organized into folders for better testing:
 1. Open Postman
 2. Click "Import" button
 3. Select `AgentsAPI.postman_collection.json`
-4. Select `HealthLogue_AI_Agents_Environment.postman_environment.json`
+4. Select `Ship_AI_Agents_Environment.postman_environment.json`
 
 ### 2. Set Environment
 1. Click the environment dropdown (top right)
-2. Select "HealthLogue AI Agents Environment"
+2. Select "Ship AI Agents Environment"
 3. Verify variables are set correctly
 
 ### 3. Test API
