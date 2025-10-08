@@ -171,11 +171,6 @@ instruction_template: |
 ./service_cloud_deploy/heroku/deploy_heroku.sh
 ```
 
-### Docker
-```bash
-# Build and run with Docker
-docker-compose up --build
-```
 
 ## 📊 Observability & Monitoring
 

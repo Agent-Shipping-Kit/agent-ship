@@ -1,4 +1,4 @@
-# HealthLogue AI Agents - Local Development
+# Ship AI Agents - Local Development
 
 This guide covers setting up and running the AI Agents service locally for development.
 
@@ -101,16 +101,17 @@ curl http://localhost:7001/health
 
 ### Agent Chat
 ```bash
+# Test trip planner agent
 curl -X POST "http://localhost:7001/api/agents/chat" \
   -H "Content-Type: application/json" \
   -d '{
-    "agent_name": "medical_followup_agent",
+    "agent_name": "trip_planner_agent",
     "user_id": "test-user",
     "session_id": "test-session",
-    "query": [
-      {"speaker": "Patient", "text": "I have chest pain"},
-      {"speaker": "Doctor", "text": "Can you describe it?"}
-    ]
+    "query": {
+      "source": "New York",
+      "destination": "Paris"
+    }
   }'
 ```
 
