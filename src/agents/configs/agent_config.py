@@ -58,8 +58,3 @@ class AgentConfig:
     def __str__(self):
         return f"AgentConfig(model_provider={self.model_provider.name.value}, model={self.model.value}, \
             temperature={self.temperature}, agent_name={self.agent_name}, description={self.description}, instruction_template={self.instruction_template})"
-
-
-if __name__ == "__main__":
-    agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_followup/main_agent.yaml")
-    print(agent_config)

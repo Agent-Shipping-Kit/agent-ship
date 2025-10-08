@@ -1,4 +1,4 @@
-"""Medical conversation followup generation agent using Google ADK."""
+"""Translation agent using Google ADK for multi-language text translation."""
 
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
@@ -13,13 +13,13 @@ import json
 logger = logging.getLogger(__name__)
 
 class TranslationInput(BaseModel):
-    """Input for followup questions generation."""
+    """Input for translation generation."""
     text: str = Field(description="The text to translate.")
     from_language: str = Field(description="The language of the text to translate from.")
     to_language: str = Field(description="The language of the text to translate to.")
 
 class TranslationOutput(BaseModel):
-    """Output for followup questions generation."""
+    """Output for translation generation."""
     translated_text: str = Field(description="The translated text.")
 
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         session_id = hashlib.md5(f"{user_id}".encode()).hexdigest()[:8]
         print(f"Generated session ID: {session_id}")
         
-        query = {"text": "I have chest pain.", "from_language": "en", "to_language": "es"}
+        query = {"text": "Hello, how are you?", "from_language": "en", "to_language": "es"}
 
         features = []
 

@@ -1,5 +1,5 @@
 
-"""Medical conversation followup generation agent using Google ADK."""
+"""Flight planning agent using Google ADK for flight search and booking."""
 
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field

@@ -1,4 +1,4 @@
-# HealthLogue AI Agents - Database Storage Setup
+# Ship AI Agents - Database Storage Setup
 
 This directory contains scripts for setting up PostgreSQL database storage for AI Agents session management.
 

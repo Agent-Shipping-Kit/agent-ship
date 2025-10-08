@@ -86,11 +86,16 @@ class AgentDiscovery:
         """
         Generate a consistent agent name from class name.
         
+        Converts CamelCase class names to snake_case agent names by:
+        1. Converting CamelCase to snake_case
+        2. Removing 'agent' or '_agent' suffix if present
+        3. Returning lowercase agent name
+        
         Args:
-            class_name: The class name (e.g., 'MedicalFollowupAgent')
+            class_name: The class name in CamelCase format
             
         Returns:
-            Generated agent name (e.g., 'medical_followup')
+            Generated agent name in snake_case format
         """
         import re
         

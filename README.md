@@ -11,7 +11,7 @@ A complete cookie-cutter template for building, deploying, and operating AI agen
 
 ### 🤖 **Multi-Agent Patterns**
 - **Orchestrator Pattern**: Coordinate multiple sub-agents (trip planner with flight, hotel, summary agents)
-- **Single Agent Pattern**: Standalone agents (translation, medical followup)
+- **Single Agent Pattern**: Standalone agents (translation)
 - **Tool Pattern**: Database agents with comprehensive tooling
 - **YAML + Python Configs**: Easy customization and deployment
 
@@ -109,11 +109,6 @@ Our platform provides a complete AI agent ecosystem with:
 - **Tools & MCP**: Comprehensive tool registry and Model Control Plane for agent capabilities
 
 ## 🤖 Pre-Built Agents
-
-### Medical Followup Agent
-- **Purpose**: Generate follow-up questions for medical consultations
-- **Features**: Multi-turn conversations, context awareness
-- **Use Case**: Healthcare applications, telemedicine
 
 ### Trip Planner Agent
 - **Purpose**: Complete trip planning with flight and hotel coordination

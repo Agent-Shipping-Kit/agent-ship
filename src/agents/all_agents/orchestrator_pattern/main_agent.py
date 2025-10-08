@@ -1,4 +1,4 @@
-"""Medical conversation followup generation agent using Google ADK."""
+"""Trip planning orchestrator agent using Google ADK to coordinate multiple sub-agents."""
 
 from typing import List
 from pydantic import BaseModel, Field
@@ -17,12 +17,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class TripPlannerInput(BaseModel):
-    """Input for followup questions generation."""
+    """Input for trip planning generation."""
     source: str = Field(description="The source of the trip.")
     destination: str = Field(description="The destination of the trip.")
 
 class TripPlannerOutput(BaseModel):
-    """Output for followup questions generation."""
+    """Output for trip planning generation."""
     flight_plan: str = Field(description="The flight plan.")
     hotel_plan: str = Field(description="The hotel plan.")
     summary: str = Field(description="The summary of the trip.")

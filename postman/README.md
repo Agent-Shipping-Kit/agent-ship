@@ -5,7 +5,7 @@ This directory contains Postman collections and environments for testing the AI 
 ## 📁 Files
 
 - `AgentsAPI.postman_collection.json` - API collection with organized agent folders
-- `HealthLogue_AI_Agents_Environment.postman_environment.json` - Environment variables
+- `Ship_AI_Agents_Environment.postman_environment.json` - Environment variables
 - `README.md` - This file
 
 ## 🗂️ Collection Organization
@@ -22,6 +22,23 @@ The collection is organized into folders for better testing:
 - **Simple Case - Headache** - Basic headache scenario
 - **Complex Case - Shortness of Breath** - Multi-turn conversation
 - **Emergency Case - Severe Chest Pain** - Critical medical scenario
+
+### 🗺️ Trip Planner Agent
+- **Plan Trip - New York to Paris** - International trip planning
+- **Plan Trip - London to Tokyo** - Long-distance trip planning
+
+### 🌐 Translation Agent
+- **Translate English to Spanish** - Basic translation
+- **Translate French to English** - Reverse translation
+
+### ✈️ Flight Agent
+- **Search Flights - NYC to LAX** - Flight search and booking
+
+### 🏨 Hotel Agent
+- **Search Hotels - Paris** - Hotel search and booking
+
+### 📋 Summary Agent
+- **Summarize Trip Plan** - Trip plan summarization
 
 ### 🗄️ Database Agent
 - **List Tables** - Show available database tables
@@ -81,7 +98,7 @@ The collection is organized into folders for better testing:
 ### Root
 - **GET** `/`
 - **Description**: Welcome message
-- **Response**: `{"message": "Welcome to the HealthLogue AI Api!"}`
+- **Response**: `{"message": "Welcome to the Ship AI Agents API!"}`
 
 ## 🔧 Environment Variables
 
@@ -130,6 +147,35 @@ GET {{base_url}}/health
 }
 ```
 
+### Agent Chat - Trip Planner Agent
+```json
+{
+  "agent_name": "trip_planner_agent",
+  "user_id": "user-123",
+  "session_id": "session-456",
+  "query": {
+    "source": "New York",
+    "destination": "Paris"
+  },
+  "features": []
+}
+```
+
+### Agent Chat - Translation Agent
+```json
+{
+  "agent_name": "translation_agent",
+  "user_id": "user-123",
+  "session_id": "session-456",
+  "query": {
+    "text": "Hello, how are you?",
+    "from_language": "en",
+    "to_language": "es"
+  },
+  "features": []
+}
+```
+
 ### Agent Chat - Database Agent
 ```json
 {
@@ -163,7 +209,32 @@ GET {{base_url}}/health
 - **Existing Session**: Use same session_id, should continue conversation
 - **Different Cases**: Test various medical scenarios (chest pain, headache, emergency)
 
-### 3. Database Agent
+### 3. Trip Planner Agent
+- **Trip Planning**: Test with different source and destination pairs
+- **Complex Routes**: Test multi-city or international trips
+- **Date Specifications**: Test with specific travel dates
+
+### 4. Translation Agent
+- **Language Pairs**: Test various language combinations
+- **Text Length**: Test with short and long text
+- **Special Characters**: Test with accented characters
+
+### 5. Flight Agent
+- **Route Search**: Test flight searches between different cities
+- **Date Flexibility**: Test with flexible date ranges
+- **Price Filters**: Test with budget constraints
+
+### 6. Hotel Agent
+- **Location Search**: Test hotel searches in different cities
+- **Date Ranges**: Test with specific check-in/check-out dates
+- **Amenities**: Test with specific hotel requirements
+
+### 7. Summary Agent
+- **Trip Summaries**: Test summarization of complex trip plans
+- **Key Points**: Verify important details are captured
+- **Format**: Test different summary formats
+
+### 8. Database Agent
 - **List Tables**: Should return available database tables
 - **Schema Queries**: Get table structure and column information
 - **Data Queries**: Retrieve records with limits and filters
@@ -171,7 +242,7 @@ GET {{base_url}}/health
 - **Statistics**: Get table analytics and data insights
 - **Complex Queries**: Test natural language database operations
 
-### 4. Error Handling
+### 9. Error Handling
 - Test with invalid agent_name
 - Test with malformed request body
 - Test missing required fields
@@ -249,12 +320,12 @@ GET {{base_url}}/health
 ## 🔄 Environment Switching
 
 ### Switch to Local
-1. Select "HealthLogue AI Agents Environment"
+1. Select "Ship AI Agents Environment"
 2. Ensure `base_url` is set to `http://localhost:7001`
 3. Make sure local service is running
 
 ### Switch to Production
-1. Select "HealthLogue AI Agents Environment"
+1. Select "Ship AI Agents Environment"
 2. Change `base_url` to your actual production URL (e.g., `https://your-app.herokuapp.com`)
 3. Or use `base_url_production` variable
 

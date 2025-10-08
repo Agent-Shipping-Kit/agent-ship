@@ -14,12 +14,12 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="HealthLogue Agents API",
-    description="This is the agents API for the HealthLogue AI Agents.",
+    title="Ship AI Agents API",
+    description="Production-ready AI Agent framework with multiple agent patterns and observability.",
     version="1.0.0",
     contact={
-        "name": "HealthLogue Support",
-        "email": "support@healthlogue.com",
+        "name": "Ship AI Agents Support",
+        "email": "support@ship-ai-agents.com",
     },
     license_info={
         "name": "MIT License",
@@ -33,7 +33,7 @@ async def read_root():
     Root endpoint for the backend.
     '''
     logger.info("Root endpoint hit")
-    return {"message": "Welcome to the HealthLogue AI Api!"}
+    return {"message": "Welcome to the Ship AI Agents API!"}
 
 
 @app.get("/health")

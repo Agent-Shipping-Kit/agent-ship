@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# HealthLogue AI Agents - Heroku Deployment Script
+# Ship AI Agents - Heroku Deployment Script
 
 set -e  # Exit on any error
 
-echo "🚀 Deploying HealthLogue AI Agents to Heroku..."
+echo "🚀 Deploying Ship AI Agents to Heroku..."
 
 # Colors for output
 RED='\033[0;31m'
