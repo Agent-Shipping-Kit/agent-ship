@@ -38,7 +38,7 @@ class BaseAgent(abc.ABC):
                  agent_type: Optional[AgentType] = None):
         """Initialize the agent."""
         self.agent_config = agent_config
-        self.agent_type = agent_type or AgentType.LLM_AGENT
+        self.agent_type = agent_type
         self.input_schema = input_schema or TextInput
         self.output_schema = output_schema or TextOutput
         logger.info(f"Agent config: {self.agent_config}")
@@ -127,7 +127,7 @@ class BaseAgent(abc.ABC):
         elif self._get_agent_type() == AgentType.SEQUENTIAL_AGENT:
             return SequentialAgent(**agent_kwargs)
 
-        return Agent(**self.agent_kwargs)
+        return Agent(**agent_kwargs)
     
     def _get_agent_type(self) -> AgentType:
         """Get the type of the agent."""

@@ -12,29 +12,28 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class SummaryInput(BaseModel):
+class TripSummaryInput(BaseModel):
     """Input for summary generation."""
     flight_plan: str = Field(description="The flight plan.")
     hotel_plan: str = Field(description="The hotel plan.")
 
-class SummaryOutput(BaseModel):
+class TripSummaryOutput(BaseModel):
     """Output for summary generation."""
     summary: str = Field(description="The summary of the trip.")
 
 
-class SummaryAgent(BaseAgent):
-    """Agent for generating summary."""    
+class TripSummaryAgent(BaseAgent):
+    """Agent for generating trip summary."""    
 
     def __init__(self):
-        """Initialize the summary agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/orchestrator_pattern/sub_agents/summary_agent.yaml")
+        """Initialize the trip summary agent."""
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/orchestrator_pattern/sub_agents/trip_summary_agent.yaml")
 
         super().__init__(
             agent_config=agent_config,
-            input_schema=SummaryInput,
-            output_schema=SummaryOutput
+            input_schema=TripSummaryInput,
+            output_schema=TripSummaryOutput
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Summary Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
@@ -45,7 +44,7 @@ class SummaryAgent(BaseAgent):
             result = await self.run(
                 request.user_id,
                 request.session_id,
-                SummaryInput(
+                TripSummaryInput(
                     flight_plan=request.query["flight_plan"],
                     hotel_plan=request.query["hotel_plan"]
                 )
@@ -84,14 +83,14 @@ if __name__ == "__main__":
     import hashlib
     
     async def main():
-        agent = HotelPlannerAgent()
+        agent = TripSummaryAgent()
         
         # Generate a deterministic session ID
         user_id = "123"
         session_id = hashlib.md5(f"{user_id}".encode()).hexdigest()[:8]
         print(f"Generated session ID: {session_id}")
         
-        query = {"destination": "Los Angeles"}
+        query = {"flight_plan": "Flight plan", "hotel_plan": "Hotel plan"}
 
         features = []
 

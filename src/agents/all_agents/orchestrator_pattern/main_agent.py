@@ -10,7 +10,7 @@ from google.adk.tools import AgentTool
 from google.adk.tools import FunctionTool
 from src.agents.all_agents.orchestrator_pattern.sub_agents.flight_agent import FlightPlannerAgent
 from src.agents.all_agents.orchestrator_pattern.sub_agents.hotel_agent import HotelPlannerAgent
-from src.agents.all_agents.orchestrator_pattern.sub_agents.summary_agent import SummaryAgent
+from src.agents.all_agents.orchestrator_pattern.sub_agents.trip_summary_agent import TripSummaryAgent
 import logging
 
 
@@ -41,7 +41,6 @@ class TripPlannerAgent(BaseAgent):
             output_schema=TripPlannerOutput,
             agent_type=AgentType.LLM_AGENT
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Trip Planner Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
@@ -85,11 +84,11 @@ class TripPlannerAgent(BaseAgent):
         """Create tools for the agent."""
         flight_agent = FlightPlannerAgent()
         hotel_agent = HotelPlannerAgent()
-        summary_agent = SummaryAgent()
+        trip_summary_agent = TripSummaryAgent()
         flight_agent_tool = AgentTool(flight_agent.agent)
         hotel_agent_tool = AgentTool(hotel_agent.agent)
-        summary_agent_tool = AgentTool(summary_agent.agent)
-        return [flight_agent_tool, hotel_agent_tool, summary_agent_tool]
+        trip_summary_agent_tool = AgentTool(trip_summary_agent.agent)
+        return [flight_agent_tool, hotel_agent_tool, trip_summary_agent_tool]
 
 
 if __name__ == "__main__":

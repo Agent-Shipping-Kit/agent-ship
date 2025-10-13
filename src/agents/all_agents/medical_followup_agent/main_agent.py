@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from google.adk.tools import FunctionTool
 from src.agents.configs.agent_config import AgentConfig
 from src.agents.all_agents.base_agent import BaseAgent
+from google.adk import Agent
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
 import logging
 import opik
@@ -40,7 +41,7 @@ class MedicalFollowupAgent(BaseAgent):
             input_schema=FollowupQuestionsInput,
             output_schema=FollowupQuestionsOutput
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
+        
         logger.info(f"Medical Followup Agent initialized: {self.agent_config}")
 
     @opik.track
@@ -105,7 +106,7 @@ class MedicalFollowupAgent(BaseAgent):
                 agent_response=f"Error: {str(e)}"
             )
     
-    def _create_sub_agents(self) -> List[BaseAgent]:
+    def _create_sub_agents(self) -> List[Agent]:
         """Create the sub-agents for the medical followup agent."""
         logger.info("Creating medical followup sub-agents")
         return []
@@ -122,10 +123,10 @@ if __name__ == "__main__":
     async def main():
         agent = MedicalFollowupAgent()
         
-        # Generate a deterministic session ID
+        # Generate a fresh session ID to avoid corrupted sessions
         user_id = "123"
-        session_id = hashlib.md5(f"{user_id}".encode()).hexdigest()[:8]
-        print(f"Generated session ID: {session_id}")
+        session_id = hashlib.md5(f"{user_id}-fresh-{__import__('time').time()}".encode()).hexdigest()[:8]
+        print(f"Generated fresh session ID: {session_id}")
         
         query = [
             {"speaker": "Patient", "text": "Patient: I have chest pain. Doctor: Can you describe it?"},

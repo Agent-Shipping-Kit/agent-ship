@@ -11,7 +11,6 @@ class AgentConfig:
     """
     Agent configuration for all agents.
     This configuration is used to configure the agent.
-    It is used to configure the model provider, model, max followups, temperature, agent name, description, and instruction template.
     It is also used to validate that the model belongs to the correct provider.
     It is also used to load the agent configuration from a YAML file.
     It is also used to print the agent configuration.

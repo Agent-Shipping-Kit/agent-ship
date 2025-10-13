@@ -24,6 +24,14 @@ psycopg2-binary = "*"
 psycopg2 = "*"
 opik = "==1.8.63"
 
+# Azure Blob Storage
+azure-storage-blob = ">=12.19.0"
+azure-core = ">=1.29.0"
+
+# PDF Processing
+PyPDF2 = ">=3.0.1"
+PyMuPDF = ">=1.23.0"
+
 [dev-packages]
 pytest = "*"
 pytest-asyncio = "*"

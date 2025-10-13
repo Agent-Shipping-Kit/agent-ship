@@ -18,13 +18,14 @@ instruction_template: >
   You are very critical and only generate questions that are absolutely essential for patient to ask to doctors.
 
   CRITERIA FOR QUESTIONS:
+  - Make sure to generate only the specified number of followup questions (up to max_followups).
   - Generate followup questions that are relevant to the conversation.
   - Generate followup questions that are not too general.
   - Generate followup questions that patient can ask to doctors and not otherwise.
   - Generate followup questions that are not too repetitive.
   - Generate followup questions that are not too long and not too short.
   - Generate followup questions that are not too complex.
-  - Make sure to generate only the specified number of followup questions (up to max_followups).
+ 
 
   Your output should be a JSON object matching the FollowupQuestionsOutput model.
 

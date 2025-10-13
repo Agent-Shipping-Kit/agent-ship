@@ -33,7 +33,6 @@ class HotelPlannerAgent(BaseAgent):
             input_schema=HotelPlannerInput,
             output_schema=HotelPlannerOutput
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Hotel Planner Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:

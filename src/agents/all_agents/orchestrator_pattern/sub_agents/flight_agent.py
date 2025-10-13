@@ -36,7 +36,6 @@ class FlightPlannerAgent(BaseAgent):
             input_schema=FlightPlannerInput,
             output_schema=FlightPlannerOutput
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Flight Planner Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:

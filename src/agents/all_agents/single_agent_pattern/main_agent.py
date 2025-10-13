@@ -35,7 +35,6 @@ class TranslationAgent(BaseAgent):
             input_schema=TranslationInput,
             output_schema=TranslationOutput
         )
-        self._setup_agent() # Setup the Google ADK agent with tools
         logger.info(f"Translation Agent initialized: {self.agent_config}")
 
     async def chat(self, request: AgentChatRequest) -> AgentChatResponse:

@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Ship AI Agents API",
-    "description": "Complete API collection for testing Ship AI Agents service with organized agent folders",
+    "name": "Healthlogue AI API",
+    "description": "Complete API collection for testing Healthlogue AI service with organized agent folders",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "d3b1a3d4-8e7f-4b06-9a66-aaaa00000001"
   },
@@ -257,10 +257,10 @@
       ]
     },
     {
-      "name": "Flight Agent",
+      "name": "Flight Planner Agent",
       "item": [
         {
-          "name": "Search Flights - NYC to LAX",
+          "name": "Search Flights",
           "request": {
             "method": "POST",
             "header": [
@@ -273,7 +273,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"flight\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Find flights from New York to Los Angeles for next week\",\n  \"features\": []\n}"
+              "raw": "{\n  \"agent_name\": \"flight_planner\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": {\n    \"source\": \"new york\",\n    \"destination\": \"los angeles\"\n  },\n  \"features\": []\n}"
             }
           },
           "response": []
@@ -281,10 +281,10 @@
       ]
     },
     {
-      "name": "Hotel Agent",
+      "name": "Hotel Planner Agent",
       "item": [
         {
-          "name": "Search Hotels - Paris",
+          "name": "Search Hotels",
           "request": {
             "method": "POST",
             "header": [
@@ -297,7 +297,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"hotel\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Find hotels in Paris for 3 nights in December\",\n  \"features\": []\n}"
+              "raw": "{\n  \"agent_name\": \"hotel_planner\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": {\n    \"destination\": \"paris\"\n  },\n  \"features\": []\n}"
             }
           },
           "response": []
@@ -305,7 +305,7 @@
       ]
     },
     {
-      "name": "Summary Agent",
+      "name": "Trip Summary Agent",
       "item": [
         {
           "name": "Summarize Trip Plan",
@@ -321,7 +321,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Summarize the trip plan for New York to Paris\",\n  \"features\": []\n}"
+              "raw": "{\n  \"agent_name\": \"trip_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": {\n    \"flight_plan\": \"the flight plan\",\n    \"hotel_plan\": \"the hotel plan\"\n  },\n  \"features\": []\n}"
             }
           },
           "response": []
@@ -441,6 +441,30 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"agent_name\": \"database\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"Show me all electronics products and their details\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Medical Reports Analysis Agent",
+      "item": [
+        {
+          "name": "Analyze Medical Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_reports_analysis\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"\",\n  \"artifacts\": [\n    {\n      \"artifact_name\": \"fb02add5-7127-496f-af15-9791795f0912.pdf\",\n      \"artifact_path\": \"medical-reports/fb02add5-7127-496f-af15-9791795f0912.pdf\"\n    }\n  ],\n  \"features\": []\n}"
             }
           },
           "response": []
