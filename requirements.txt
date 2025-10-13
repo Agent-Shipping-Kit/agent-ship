@@ -21,6 +21,8 @@ authlib==1.6.5
 sqlalchemy==2.0.44
 sqlalchemy-spanner==1.17.0
 alembic==1.17.0
+psycopg2==2.9.11
+psycopg2-binary==2.9.11
 
 # Azure Dependencies
 azure-storage-blob==12.26.0
