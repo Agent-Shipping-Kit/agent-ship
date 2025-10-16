@@ -18,9 +18,9 @@ instruction_template: |
 
   Once you receive the input and report data is fetched, you will need to analyze the medical reports content and extract the relevant information.
 
-  Your output should be a JSON object matching the MedicalReportsAnalysisOutput model.
+  Your output should be a JSON object matching the MedicalReportsAnalysisOutput model. Please make sure to include all the fields in the output and output should be a JSON object.
 
   MedicalReportsAnalysisOutput model:
-  - summary: str / summary of the medical report
-  - key_findings: List[str] / key findings of the medical report in bullet points (maximum 5)
-  - recommendations: List[str] / recommendations of the medical report in bullet points (maximum 5)
+  - summary: str
+  - key_findings: List[str]
+  - recommendations: List[str]

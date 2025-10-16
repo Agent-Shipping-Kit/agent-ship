@@ -71,7 +71,7 @@ class MedicalReportsAnalysisAgent(BaseAgent):
             user_id=request.user_id,
             session_id=request.session_id,
             success=True,
-            agent_response=result.response if hasattr(result, 'response') else str(result)
+            agent_response=result
         )
 
     def _create_sub_agents(self) -> List[Agent]:
