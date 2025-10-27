@@ -171,6 +171,87 @@
       ]
     },
     {
+      "name": "Medical Conversation Summary Agent",
+      "item": [
+        {
+          "name": "Summarize Short Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp, stabbing pain. It started after I lifted some heavy boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 200 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summarize Medium Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"About three days now\" },\n    { \"speaker\": \"Doctor\", \"text\": \"What makes it better or worse?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It gets worse when I look at screens\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other symptoms?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Some mild nausea and sensitivity to light\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 300 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summarize Long Conversation - Shortness of Breath",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any swelling in your legs?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not that I've noticed\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have a cough?\" },\n    { \"speaker\": \"Patient\", \"text\": \"A little bit, mostly dry\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 400 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summarize Detailed Consultation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I'm here for a routine checkup\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How are you feeling overall?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Generally good, but I've been tired lately\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any changes in your diet or exercise?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not really, same routine as before\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other concerns?\" },\n    { \"speaker\": \"Patient\", \"text\": \"I've been getting headaches more frequently\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How often?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Maybe 2-3 times a week now\" },\n    { \"speaker\": \"Doctor\", \"text\": \"We should check your blood pressure and run some tests\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 350 }\n  ]\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Trip Planner Agent",
       "item": [
         {
