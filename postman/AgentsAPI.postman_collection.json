@@ -171,10 +171,10 @@
       ]
     },
     {
-      "name": "Medical Conversation Summary Agent",
+      "name": "Medical Conversation Insights Agent",
       "item": [
         {
-          "name": "Summarize Short Conversation",
+          "name": "Short Conversation - Chest Pain After Lifting",
           "request": {
             "method": "POST",
             "header": [
@@ -187,13 +187,59 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp, stabbing pain. It started after I lifted some heavy boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 200 }\n  ]\n}"
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp, stabbing pain. It started after I lifted some heavy boxes.\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Does it hurt when you breathe deeply?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, especially when I take a deep breath or twist my torso.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 200 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 3 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 3 }\n  ]\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have chest pain\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Can you describe it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's a sharp, stabbing pain. It started after I lifted some heavy boxes.\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 200 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 3 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 3 }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/agents/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "agents", "chat"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "cookie": [],
+              "body": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"SYSTEM\",\n  \"success\": true,\n  \"agent_response\": \"{\\\"summary\\\": \\\"Patient experiencing sharp, stabbing chest pain after lifting heavy boxes...\\\", \\\"key_findings\\\": [\\\"Sharp chest pain post-physical exertion\\\", \\\"Pain triggered by lifting\\\", \\\"Localized discomfort\\\"], \\\"action_items\\\": [\\\"Avoid heavy lifting\\\", \\\"Apply ice to affected area\\\", \\\"Monitor for worsening symptoms\\\"]}\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Medium Conversation - Chronic Headache with Screen Time",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a persistent headache for the past three days\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"About three days now, it comes and goes\" },\n    { \"speaker\": \"Doctor\", \"text\": \"What makes it better or worse?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It gets worse when I look at screens for long periods\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other symptoms like nausea or vision problems?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Some mild nausea and sensitivity to light\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Are you staying hydrated and getting enough sleep?\" },\n    { \"speaker\": \"Patient\", \"text\": \"I've been sleeping only 5-6 hours lately due to work deadlines\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 300 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 5 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 5 }\n  ]\n}"
             }
           },
           "response": []
         },
         {
-          "name": "Summarize Medium Conversation",
+          "name": "Long Conversation - Shortness of Breath with Exercise",
           "request": {
             "method": "POST",
             "header": [
@@ -206,13 +252,13 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a headache\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had it?\" },\n    { \"speaker\": \"Patient\", \"text\": \"About three days now\" },\n    { \"speaker\": \"Doctor\", \"text\": \"What makes it better or worse?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It gets worse when I look at screens\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other symptoms?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Some mild nausea and sensitivity to light\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 300 }\n  ]\n}"
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain or discomfort?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest when I'm short of breath\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any swelling in your legs or ankles?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not that I've noticed\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have a cough or produce any mucus?\" },\n    { \"speaker\": \"Patient\", \"text\": \"A little bit, mostly dry cough\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any history of asthma or heart problems?\" },\n    { \"speaker\": \"Patient\", \"text\": \"My father had heart issues, but I've never been diagnosed with anything\" },\n    { \"speaker\": \"Doctor\", \"text\": \"We should do an EKG and chest X-ray to rule out cardiac issues\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 400 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 6 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 6 }\n  ]\n}"
             }
           },
           "response": []
         },
         {
-          "name": "Summarize Long Conversation - Shortness of Breath",
+          "name": "Detailed Consultation - Routine Checkup with Concerns",
           "request": {
             "method": "POST",
             "header": [
@@ -225,13 +271,13 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I've been having shortness of breath for the past week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"When does it occur?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Mainly when I walk up stairs or exercise\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have any chest pain?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sometimes, it feels like pressure in my chest\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any swelling in your legs?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not that I've noticed\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Do you have a cough?\" },\n    { \"speaker\": \"Patient\", \"text\": \"A little bit, mostly dry\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 400 }\n  ]\n}"
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I'm here for my annual checkup\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How are you feeling overall?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Generally good, but I've been feeling more tired than usual\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any changes in your diet, exercise, or sleep patterns?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not really, same routine as before. Still exercising 3 times a week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other concerns or symptoms you want to discuss?\" },\n    { \"speaker\": \"Patient\", \"text\": \"I've been getting headaches more frequently, maybe 2-3 times a week\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How severe are they on a scale of 1-10?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Usually around 5-6, manageable with ibuprofen\" },\n    { \"speaker\": \"Doctor\", \"text\": \"We should check your blood pressure and possibly run some blood work\" },\n    { \"speaker\": \"Patient\", \"text\": \"Okay, that sounds good. Should I be worried?\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Not necessarily, but let's rule out common causes like hypertension or vitamin deficiencies\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 350 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 5 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 5 }\n  ]\n}"
             }
           },
           "response": []
         },
         {
-          "name": "Summarize Detailed Consultation",
+          "name": "Complex Case - Diabetes Management Follow-up",
           "request": {
             "method": "POST",
             "header": [
@@ -244,7 +290,26 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"agent_name\": \"medical_conversation_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I'm here for a routine checkup\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How are you feeling overall?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Generally good, but I've been tired lately\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any changes in your diet or exercise?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not really, same routine as before\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any other concerns?\" },\n    { \"speaker\": \"Patient\", \"text\": \"I've been getting headaches more frequently\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How often?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Maybe 2-3 times a week now\" },\n    { \"speaker\": \"Doctor\", \"text\": \"We should check your blood pressure and run some tests\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 350 }\n  ]\n}"
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Doctor\", \"text\": \"How has your blood sugar been since our last visit?\" },\n    { \"speaker\": \"Patient\", \"text\": \"It's been mostly stable, between 110-140 fasting\" },\n    { \"speaker\": \"Doctor\", \"text\": \"That's good. Are you checking it regularly?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, twice a day as you recommended\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any episodes of hypoglycemia or feeling dizzy?\" },\n    { \"speaker\": \"Patient\", \"text\": \"A couple times after my morning workout, I felt a bit shaky\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Are you eating something before exercise?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Not always, sometimes I just have coffee\" },\n    { \"speaker\": \"Doctor\", \"text\": \"You should have a small snack before exercising. How's your diet otherwise?\" },\n    { \"speaker\": \"Patient\", \"text\": \"I've been following the meal plan, cutting down on carbs\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Good. Let's check your A1C today and adjust medication if needed\" },\n    { \"speaker\": \"Patient\", \"text\": \"Sounds good. Also, I've lost about 10 pounds since last time\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Excellent! That will definitely help with your blood sugar control\" }\n  ],\n  \"features\": [\n    { \"feature_name\": \"summary_length\", \"feature_value\": 450 },\n    { \"feature_name\": \"num_of_key_findings\", \"feature_value\": 7 },\n    { \"feature_name\": \"num_of_action_items\", \"feature_value\": 7 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Minimal Features - Default Values",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"medical_conversation_insights\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": [\n    { \"speaker\": \"Patient\", \"text\": \"I have a sore throat and fever\" },\n    { \"speaker\": \"Doctor\", \"text\": \"How long have you had these symptoms?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Started yesterday evening\" },\n    { \"speaker\": \"Doctor\", \"text\": \"Any difficulty swallowing?\" },\n    { \"speaker\": \"Patient\", \"text\": \"Yes, it hurts when I swallow\" }\n  ],\n  \"features\": []\n}"
             }
           },
           "response": []

@@ -1,4 +1,4 @@
-"""Medical conversation followup generation agent using Google ADK."""
+"""Medical conversation insights generation agent using Google ADK."""
 
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
@@ -17,31 +17,33 @@ class ConversationTurn(BaseModel):
     speaker: str = Field(description="Speaker label, e.g., Patient or Doctor")
     text: str = Field(description="What the speaker said")
 
-class ConversationSummaryInput(BaseModel):
-    """Input for conversation summary generation."""
-    conversation_turns: List[ConversationTurn] = Field(description="The medical conversation to generate summary for.")
+class ConversationInsightsInput(BaseModel):
+    """Input for conversation insights generation."""
+    conversation_turns: List[ConversationTurn] = Field(description="The medical conversation to generate insights for.")
     summary_length: int = Field(description="The length of the summary to generate.", default=200)
-    
-class ConversationSummaryOutput(BaseModel):
-    """Output for conversation summary generation."""
+    num_of_key_findings: int = Field(description="The number of key findings to generate.", default=5)
+    num_of_action_items: int = Field(description="The number of action items to generate.", default=5)
+
+class ConversationInsightsOutput(BaseModel):
+    """Output for conversation insights generation."""
     summary: str = Field(description="The summary of the conversation.")
     key_findings: List[str] = Field(description="The key findings of the conversation.")
     action_items: List[str] = Field(description="The action items for the conversation.")
 
-class MedicalConversationSummaryAgent(BaseAgent):
-    """Agent for generating medical conversation summary."""
+class MedicalConversationInsightsAgent(BaseAgent):
+    """Agent for generating medical conversation insights including summary, key findings, and action items."""
 
     def __init__(self):
-        """Initialize the medical conversation summary agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_conv_summary_agent/main_agent.yaml")
+        """Initialize the medical conversation insights agent."""
+        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_conversation_insights_agent/main_agent.yaml")
 
         super().__init__(
             agent_config=agent_config,
-            input_schema=ConversationSummaryInput,
-            output_schema=ConversationSummaryOutput
+            input_schema=ConversationInsightsInput,
+            output_schema=ConversationInsightsOutput
         )
         
-        logger.info(f"Medical Followup Agent initialized: {self.agent_config}")
+        logger.info(f"Medical Conversation Insights Agent initialized: {self.agent_config}")
 
     @opik.track
     def get_summary_length(self, features: List[FeatureMap]) -> int:
@@ -54,6 +56,28 @@ class MedicalConversationSummaryAgent(BaseAgent):
                     summary_length = feature_map.feature_value
         logger.debug(f"Summary length: {summary_length}")
         return summary_length
+
+    @opik.track
+    def get_num_of_key_findings(self, features: List[FeatureMap]) -> int:
+        """Get the number of key findings from the features."""
+        num_of_key_findings = 5
+        if features:
+            for feature_map in features:
+                if feature_map.feature_name == "num_of_key_findings":
+                    num_of_key_findings = feature_map.feature_value
+        logger.debug(f"Number of key findings: {num_of_key_findings}")
+        return num_of_key_findings
+
+    @opik.track 
+    def get_num_of_action_items(self, features: List[FeatureMap]) -> int:
+        """Get the number of action items from the features."""
+        num_of_action_items = 5
+        if features:
+            for feature_map in features:
+                if feature_map.feature_name == "num_of_action_items":
+                    num_of_action_items = feature_map.feature_value
+        logger.debug(f"Number of action items: {num_of_action_items}")
+        return num_of_action_items
 
     def parse_conversation_turns(self, query: List[Dict]) -> List[ConversationTurn]:
         """Parse the query into ConversationTurn objects."""
@@ -74,6 +98,8 @@ class MedicalConversationSummaryAgent(BaseAgent):
         """Chat with the agent."""
         logger.debug(f"Chatting with the agent: {self._get_agent_name()}")
         summary_length = self.get_summary_length(request.features)
+        num_of_key_findings = self.get_num_of_key_findings(request.features)
+        num_of_action_items = self.get_num_of_action_items(request.features)
         conversation_turns = self.parse_conversation_turns(request.query)
         logger.debug(f"Conversation turns: {conversation_turns}")
 
@@ -81,9 +107,11 @@ class MedicalConversationSummaryAgent(BaseAgent):
             result = await self.run(
                 request.user_id,
                 request.session_id,
-                ConversationSummaryInput(
+                ConversationInsightsInput(
                     conversation_turns=conversation_turns,
-                    summary_length=summary_length
+                    summary_length=summary_length,
+                    num_of_key_findings=num_of_key_findings,
+                    num_of_action_items=num_of_action_items
                 )
             )
 
@@ -121,7 +149,7 @@ if __name__ == "__main__":
     import hashlib
     
     async def main():
-        agent = MedicalConversationSummaryAgent()
+        agent = MedicalConversationInsightsAgent()
         
         # Generate a fresh session ID to avoid corrupted sessions
         user_id = "123"
@@ -139,7 +167,9 @@ if __name__ == "__main__":
         ]
 
         features = [
-            FeatureMap(feature_name="summary_length", feature_value=200)
+            FeatureMap(feature_name="summary_length", feature_value=200),
+            FeatureMap(feature_name="num_of_key_findings", feature_value=5),
+            FeatureMap(feature_name="num_of_action_items", feature_value=5)
         ]
 
         # Create proper input using the schema
