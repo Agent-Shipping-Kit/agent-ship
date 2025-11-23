@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ConversationTurn(BaseModel):
     """One turn in a conversation."""
-    speaker: str = Field(description="Speaker label, e.g., Patient or Doctor")
+    speaker: str = Field(description="Speaker label (0, 1, 2, etc.)")
     text: str = Field(description="What the speaker said")
 
 class ConversationInsightsInput(BaseModel):
