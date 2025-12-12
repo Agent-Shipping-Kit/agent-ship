@@ -34,6 +34,6 @@ logs/
 *.log.*.*.*
 *.log.*.*.*.*
 
-# Package manager lock files (using requirements.txt for Heroku deployment)
-Pipfile.lock
+# Package manager files (using Pipfile for Heroku deployment)
+requirements.txt
 uv.lock

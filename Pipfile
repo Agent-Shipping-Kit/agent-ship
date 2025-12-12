@@ -57,6 +57,7 @@ websockets = "==15.0.1"
 anyio = "==4.11.0"
 tenacity = ">=8.5.0"
 watchdog = "==6.0.0"
+httpx = "*"
 
 # Utility Dependencies
 tzlocal = ">=5.3.0"
