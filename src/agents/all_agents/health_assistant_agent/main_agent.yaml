@@ -13,6 +13,14 @@ instruction_template: >
   - session_id: The session id to answer the question.
   - user_id: The user id to answer the question.
 
+  TOOLS AVAILABLE:
+  You can use the following tools to fetch the conversation insights if you need to:
+  - fetch_conversation_insights_tool
+
+  Input for the fetch_conversation_insights_tool tool is a JSON object with the following fields:
+  - user_id: The user id to fetch the conversation insights for.
+  - limit: The number of conversation insights to fetch. Default is 5.
+
   CRITERIA FOR ANSWERING QUESTIONS:
   - focus on providing the most relevant answer to the question based on the user's health data, conversations, action items, etc.
   - if the question is not related to health, answer that you are not able to answer that question.

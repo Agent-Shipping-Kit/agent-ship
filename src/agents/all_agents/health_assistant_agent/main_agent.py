@@ -9,6 +9,9 @@ from google.adk import Agent
 from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
 import logging
 import opik
+from google.adk.tools import AgentTool
+from src.agents.all_agents.health_assistant_agent.sub_agents.conversation_insights_summary_agent import ConversationInsightsSummaryAgent
+
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +95,9 @@ class HealthAssistantAgent(BaseAgent):
 
     def _create_tools(self) -> List[FunctionTool]:
         """Create tools for the agent."""
-        return []
+        conversation_insights_summary_agent = ConversationInsightsSummaryAgent()
+        conversation_insights_summary_agent_tool = AgentTool(conversation_insights_summary_agent.agent)
+        return [conversation_insights_summary_agent_tool]
 
 
 if __name__ == "__main__":
@@ -103,11 +108,11 @@ if __name__ == "__main__":
         agent = HealthAssistantAgent()
         
         # Generate a fresh session ID to avoid corrupted sessions
-        user_id = "123"
+        user_id = "e1470068-9772-41fa-8458-614074f33295"
         session_id = hashlib.md5(f"{user_id}-fresh-{__import__('time').time()}".encode()).hexdigest()[:8]
         print(f"Generated fresh session ID: {session_id}")
         
-        query = "I am feeling tired and have a headache. What should I do to feel better?"
+        query = "I am feeling tired and have a headache. I have had past conversations with doctors on it. What should I do to feel better?"
 
         # Create proper input using the schema
         request = AgentChatRequest(
