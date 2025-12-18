@@ -5,6 +5,7 @@ from src.agents.configs.llm_provider_config import (
 )
 from typing import List
 import yaml
+import os
 
 
 class AgentConfig:
@@ -40,7 +41,29 @@ class AgentConfig:
 
     @classmethod
     def from_yaml(cls, file_path: str) -> 'AgentConfig':
-        """Load agent configuration from a YAML file."""
+        """
+        Load agent configuration from a YAML file.
+        
+        Args:
+            file_path: Path to YAML file. Can be absolute or relative.
+                      For relative paths, use resolve_config_path() utility.
+                      Convention: YAML filename should match the Python filename.
+                      Example: main_agent.py → main_agent.yaml
+        
+        Returns:
+            AgentConfig instance loaded from YAML file
+        
+        Raises:
+            FileNotFoundError: If config file doesn't exist
+        """
+        # Resolve to absolute path if relative
+        if not os.path.isabs(file_path):
+            # If relative, resolve from current working directory
+            file_path = os.path.abspath(file_path)
+        
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Agent config file not found: {file_path}")
+        
         with open(file_path, 'r') as file:
             config = yaml.safe_load(file)
 

@@ -44,7 +44,8 @@ async def health_check():
     return {"status": "running"}
 
 # Ensure agents are discovered (idempotent)
-discover_agents("src/agents/all_agents")
+# Uses AGENT_DIRECTORIES env var or defaults to framework agents only
+discover_agents()
 
 app.include_router(rest_router)
 

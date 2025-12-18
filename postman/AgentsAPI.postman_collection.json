@@ -618,6 +618,130 @@
       ]
     },
     {
+      "name": "Health Assistant Agent",
+      "item": [
+        {
+          "name": "Basic Health Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"health_assistant\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"I am feeling tired and have a headache. I have had past conversations with doctors on it. What should I do to feel better?\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Question About Past Conversations",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"health_assistant\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"What were the key findings from my last doctor visit?\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Question About Action Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"health_assistant\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"What action items do I have from my recent medical consultations?\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conversation Insights Summary Agent",
+      "item": [
+        {
+          "name": "Get Summary - Default Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"conversation_insights_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"\",\n  \"features\": []\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Summary - Custom Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"conversation_insights_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"\",\n  \"features\": [\n    { \"feature_name\": \"limit\", \"feature_value\": 10 }\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Summary - Top 3 Insights",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agents/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_name\": \"conversation_insights_summary\",\n  \"user_id\": \"{{user_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"sender\": \"USER\",\n  \"query\": \"\",\n  \"features\": [\n    { \"feature_name\": \"limit\", \"feature_value\": 3 }\n  ]\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Error Tests",
       "item": [
         {

@@ -1,21 +1,18 @@
 """Medical conversation insights generation agent using Google ADK."""
 
-from typing import List, Optional, Dict
+from typing import List, Dict
 from pydantic import BaseModel, Field
-from google.adk.tools import FunctionTool
-from src.agents.configs.agent_config import AgentConfig
 from src.agents.all_agents.base_agent import BaseAgent
-from google.adk import Agent
-from src.models.base_models import FeatureMap, AgentChatRequest, AgentChatResponse
-import logging
+from src.models.base_models import AgentChatRequest, FeatureMap
+from google.adk.tools import FunctionTool
 import opik
 
-logger = logging.getLogger(__name__)
 
 class ConversationTurn(BaseModel):
     """One turn in a conversation."""
     speaker: str = Field(description="Speaker label (0, 1, 2, etc.)")
     text: str = Field(description="What the speaker said")
+
 
 class ConversationInsightsInput(BaseModel):
     """Input for conversation insights generation."""
@@ -24,37 +21,34 @@ class ConversationInsightsInput(BaseModel):
     num_of_key_findings: int = Field(description="The number of key findings to generate.", default=5)
     num_of_action_items: int = Field(description="The number of action items to generate.", default=5)
 
+
 class ConversationInsightsOutput(BaseModel):
     """Output for conversation insights generation."""
     summary: str = Field(description="The summary of the conversation.")
     key_findings: List[str] = Field(description="The key findings of the conversation.")
     action_items: List[str] = Field(description="The action items for the conversation.")
 
+
 class MedicalConversationInsightsAgent(BaseAgent):
     """Agent for generating medical conversation insights including summary, key findings, and action items."""
 
     def __init__(self):
         """Initialize the medical conversation insights agent."""
-        agent_config = AgentConfig.from_yaml("src/agents/all_agents/medical_conversation_insights_agent/main_agent.yaml")
-
+        # Config auto-loads, chat() is implemented by base class
         super().__init__(
-            agent_config=agent_config,
+            _caller_file=__file__,
             input_schema=ConversationInsightsInput,
             output_schema=ConversationInsightsOutput
         )
-        
-        logger.info(f"Medical Conversation Insights Agent initialized: {self.agent_config}")
 
     @opik.track
     def get_summary_length(self, features: List[FeatureMap]) -> int:
         """Get the length of the summary from the features."""
         summary_length = 200
-
         if features:
             for feature_map in features:
                 if feature_map.feature_name == "summary_length":
                     summary_length = feature_map.feature_value
-        logger.debug(f"Summary length: {summary_length}")
         return summary_length
 
     @opik.track
@@ -65,7 +59,6 @@ class MedicalConversationInsightsAgent(BaseAgent):
             for feature_map in features:
                 if feature_map.feature_name == "num_of_key_findings":
                     num_of_key_findings = feature_map.feature_value
-        logger.debug(f"Number of key findings: {num_of_key_findings}")
         return num_of_key_findings
 
     @opik.track 
@@ -76,113 +69,29 @@ class MedicalConversationInsightsAgent(BaseAgent):
             for feature_map in features:
                 if feature_map.feature_name == "num_of_action_items":
                     num_of_action_items = feature_map.feature_value
-        logger.debug(f"Number of action items: {num_of_action_items}")
         return num_of_action_items
 
     def parse_conversation_turns(self, query: List[Dict]) -> List[ConversationTurn]:
         """Parse the query into ConversationTurn objects."""
         try:
-            conversation_turns = [ConversationTurn(**turn) for turn in query]
-            logger.debug(f"Conversation turns: {conversation_turns}")
-            return conversation_turns
-        except (TypeError, ValueError, KeyError) as e:
-            logger.error(f"Failed to parse conversation query: {e}")
+            return [ConversationTurn(**turn) for turn in query]
+        except (TypeError, ValueError, KeyError):
             # Fallback: treat as a single conversation turn
-            conversation_turns = [ConversationTurn(speaker="Patient", text=str(query))]
-            return conversation_turns
-        except Exception as e:
-            logger.error(f"Failed to parse conversation query: {e}")
-            return []
+            return [ConversationTurn(speaker="Patient", text=str(query))]
 
-    async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
-        """Chat with the agent."""
-        logger.debug(f"Chatting with the agent: {self._get_agent_name()}")
+    def _create_input_from_request(self, request: AgentChatRequest) -> BaseModel:
+        """Create input schema from request with features processing."""
         summary_length = self.get_summary_length(request.features)
         num_of_key_findings = self.get_num_of_key_findings(request.features)
         num_of_action_items = self.get_num_of_action_items(request.features)
-        conversation_turns = self.parse_conversation_turns(request.query)
-        logger.debug(f"Conversation turns: {conversation_turns}")
-
-        try:
-            result = await self.run(
-                request.user_id,
-                request.session_id,
-                ConversationInsightsInput(
-                    conversation_turns=conversation_turns,
-                    summary_length=summary_length,
-                    num_of_key_findings=num_of_key_findings,
-                    num_of_action_items=num_of_action_items
-                )
-            )
-
-            logger.info(f"Result from conversation summary agent: {result}")
-
-            return AgentChatResponse(
-                agent_name=self._get_agent_name(),
-                user_id=request.user_id,
-                session_id=request.session_id,
-                success=True,
-                agent_response=result
-            )
-        except Exception as e:
-            logger.error(f"Error in conversation summary agent: {e}")
-            return AgentChatResponse(
-                agent_name=self._get_agent_name(),
-                user_id=request.user_id,
-                session_id=request.session_id,
-                success=False,
-                agent_response=f"Error: {str(e)}"
-            )
-    
-    def _create_sub_agents(self) -> List[Agent]:
-        """Create the sub-agents for the medical conversation summary agent."""
-        logger.info("Creating medical conversation summary sub-agents")
-        return []
-
-    def _create_tools(self) -> List[FunctionTool]:
-        """Create tools for the agent."""
-        return []
-
-
-if __name__ == "__main__":
-    import asyncio
-    import hashlib
-    
-    async def main():
-        agent = MedicalConversationInsightsAgent()
+        conversation_turns = self.parse_conversation_turns(request.query if isinstance(request.query, list) else [])
         
-        # Generate a fresh session ID to avoid corrupted sessions
-        user_id = "123"
-        session_id = hashlib.md5(f"{user_id}-fresh-{__import__('time').time()}".encode()).hexdigest()[:8]
-        print(f"Generated fresh session ID: {session_id}")
-        
-        query = [
-            {"speaker": "Patient", "text": "Patient: I have chest pain. Doctor: Can you describe it?"},
-            {"speaker": "Doctor", "text": "Can you describe it?"},
-            {"speaker": "Patient", "text": "It's a sharp, stabbing pain. It started after I lifted some heavy boxes at work."},
-            {"speaker": "Doctor", "text": "Have you had any shortness of breath or difficulty breathing?"},
-            {"speaker": "Patient", "text": "Yes, I feel a bit short of breath, especially when I walk up stairs."},
-            {"speaker": "Doctor", "text": "Any fever or cough?"},
-            {"speaker": "Patient", "text": "No fever, but I do have a dry cough that started yesterday."},
-        ]
-
-        features = [
-            FeatureMap(feature_name="summary_length", feature_value=200),
-            FeatureMap(feature_name="num_of_key_findings", feature_value=5),
-            FeatureMap(feature_name="num_of_action_items", feature_value=5)
-        ]
-
-        # Create proper input using the schema
-        request = AgentChatRequest(
-            agent_name=agent._get_agent_name(),
-            user_id=user_id,
-            session_id=session_id,
-            query=query,
-            features=features
+        return ConversationInsightsInput(
+            conversation_turns=conversation_turns,
+            summary_length=summary_length,
+            num_of_key_findings=num_of_key_findings,
+            num_of_action_items=num_of_action_items
         )
-        
-        result = await agent.chat(request=request)
-
-        logger.info(f"Result: {result}")
     
-    asyncio.run(main())
+    # No need to override chat() - base class handles it!
+    # No need to override _create_tools() or _create_sub_agents() - defaults to empty list

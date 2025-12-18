@@ -2,12 +2,14 @@ import abc
 import logging
 import json
 import opik
+import inspect
 from enum import Enum
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, Dict, Union
 from pydantic import BaseModel
 from src.agents.configs.agent_config import AgentConfig
 from src.models.base_models import TextInput, TextOutput, AgentChatRequest, AgentChatResponse
 from src.agents.modules import SessionManager, AgentConfigurator, SessionServiceFactory, ResponseParser
+from src.agents.utils.path_utils import resolve_config_path
 from google.adk.tools import FunctionTool
 from google.adk.models.lite_llm import LiteLlm
 from google.adk import Agent
@@ -32,11 +34,54 @@ class AgentType(Enum):
 class BaseAgent(abc.ABC):
     """Base class for all agents."""
 
-    def __init__(self, agent_config: AgentConfig, 
+    def __init__(self, 
+                 agent_config: Optional[AgentConfig] = None,
                  input_schema: Optional[Type[BaseModel]] = None,
                  output_schema: Optional[Type[BaseModel]] = None,
-                 agent_type: Optional[AgentType] = None):
-        """Initialize the agent."""
+                 agent_type: Optional[AgentType] = None,
+                 config_path: Optional[str] = None,
+                 _caller_file: Optional[str] = None):
+        """
+        Initialize the agent.
+        
+        Args:
+            agent_config: Agent configuration. If None, will auto-load from YAML file.
+            input_schema: Input schema class. Defaults to TextInput.
+            output_schema: Output schema class. Defaults to TextOutput.
+            agent_type: Type of agent (LLM_AGENT, PARALLEL_AGENT, etc.). Defaults to None.
+            config_path: Path to config YAML file. If None, auto-detects from _caller_file.
+                        Only used if agent_config is None.
+            _caller_file: Internal parameter - pass __file__ here for auto-detection.
+                         Recommended: super().__init__(_caller_file=__file__, ...)
+        """
+        # Auto-load config if not provided
+        if agent_config is None:
+            if config_path is None:
+                if _caller_file:
+                    config_path = resolve_config_path(relative_to=_caller_file)
+                else:
+                    # Try to auto-detect from stack (fallback)
+                    try:
+                        frame = inspect.currentframe()
+                        caller_frame = frame.f_back
+                        if caller_frame:
+                            caller_file = caller_frame.f_globals.get('__file__')
+                            if caller_file:
+                                config_path = resolve_config_path(relative_to=caller_file)
+                            else:
+                                raise ValueError(
+                                    "Cannot auto-detect config file. Please provide one of: "
+                                    "agent_config, config_path, or _caller_file=__file__"
+                                )
+                        del frame
+                    except Exception as e:
+                        raise ValueError(
+                            f"Cannot auto-detect config file: {e}. "
+                            "Please provide one of: agent_config, config_path, or _caller_file=__file__"
+                        )
+            
+            agent_config = AgentConfig.from_yaml(config_path)
+        
         self.agent_config = agent_config
         self.agent_type = agent_type
         self.input_schema = input_schema or TextInput
@@ -220,17 +265,109 @@ class BaseAgent(abc.ABC):
             logger.error("No valid content found in the response")
             return None
     
-    @abc.abstractmethod
-    async def chat(self, agent_chat_request: AgentChatRequest) -> AgentChatResponse:
-        """Chat with the agent."""
-        pass
+    def _create_input_from_request(self, request: AgentChatRequest) -> BaseModel:
+        """
+        Create input schema instance from AgentChatRequest.
+        
+        Override this method if you need custom input transformation.
+        Default behavior: If query is a dict, use it as kwargs. Otherwise, pass as 'text' or first field.
+        
+        Args:
+            request: The chat request
+            
+        Returns:
+            Instance of input_schema
+        """
+        query = request.query
+        
+        # If query is a dict, try to use it as kwargs
+        if isinstance(query, dict):
+            try:
+                return self.input_schema(**query)
+            except (TypeError, ValueError) as e:
+                logger.warning(f"Failed to create input from dict, trying with 'text' field: {e}")
+                # Fallback: try with 'text' field
+                if hasattr(self.input_schema, 'model_fields') and 'text' in self.input_schema.model_fields:
+                    return self.input_schema(text=str(query))
+        
+        # If query is a string or other type, try 'text' field first
+        if hasattr(self.input_schema, 'model_fields'):
+            # Check if schema has a 'text' field
+            if 'text' in self.input_schema.model_fields:
+                return self.input_schema(text=str(query))
+            # Otherwise, try to pass as first field
+            fields = list(self.input_schema.model_fields.keys())
+            if fields:
+                return self.input_schema(**{fields[0]: query})
+        
+        # Last resort: try to pass query directly
+        return self.input_schema(query) if query else self.input_schema()
     
-    @abc.abstractmethod
+    async def chat(self, request: AgentChatRequest) -> AgentChatResponse:
+        """
+        Default chat implementation.
+        
+        Override this method for custom behavior. Default implementation:
+        1. Creates input schema from request
+        2. Runs the agent
+        3. Returns AgentChatResponse with success/error handling
+        
+        Args:
+            request: The chat request
+            
+        Returns:
+            AgentChatResponse with result or error
+        """
+        logger.debug(f"Chatting with the agent: {self._get_agent_name()}")
+        
+        try:
+            # Create input schema instance from request
+            input_data = self._create_input_from_request(request)
+            
+            # Run the agent
+            result = await self.run(
+                request.user_id,
+                request.session_id,
+                input_data
+            )
+            
+            logger.info(f"Result from {self._get_agent_name()}: {result}")
+            
+            return AgentChatResponse(
+                agent_name=self._get_agent_name(),
+                user_id=request.user_id,
+                session_id=request.session_id,
+                success=True,
+                agent_response=result
+            )
+        except Exception as e:
+            logger.error(f"Error in {self._get_agent_name()}: {e}", exc_info=True)
+            return AgentChatResponse(
+                agent_name=self._get_agent_name(),
+                user_id=request.user_id,
+                session_id=request.session_id,
+                success=False,
+                agent_response=f"Error: {str(e)}"
+            )
+    
     def _create_tools(self) -> List[FunctionTool]:
-        """Create the tools for the agent."""
-        pass
-
-    @abc.abstractmethod
+        """
+        Create the tools for the agent.
+        
+        Override this method to provide tools. Default returns empty list.
+        
+        Returns:
+            List of FunctionTool instances
+        """
+        return []
+    
     def _create_sub_agents(self) -> List[Agent]:
-        """Create the sub-agents for the agent."""
-        pass
+        """
+        Create the sub-agents for the agent.
+        
+        Override this method to provide sub-agents. Default returns empty list.
+        
+        Returns:
+            List of Agent instances
+        """
+        return []
