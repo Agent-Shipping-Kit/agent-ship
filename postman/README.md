@@ -1,4 +1,4 @@
-# Ship AI Agents - API Testing with Postman
+# AgentShip - API Testing with Postman
 
 This directory contains Postman collections and environments for testing the AI Agents API with organized agent folders.
 
@@ -63,7 +63,7 @@ The collection is organized into folders for better testing:
 
 ### 2. Set Environment
 1. Click the environment dropdown (top right)
-2. Select "Ship AI Agents Environment"
+2. Select "AgentShip Environment"
 3. Verify variables are set correctly
 
 ### 3. Test API
@@ -76,12 +76,16 @@ The collection is organized into folders for better testing:
 ### Local Development
 - **Base URL**: `http://localhost:7001`
 - **Health Check**: `http://localhost:7001/health`
-- **API Docs**: `http://localhost:7001/docs`
+- **API Docs (Swagger)**: `http://localhost:7001/swagger`
+- **API Docs (ReDoc)**: `http://localhost:7001/redoc`
+- **Framework Docs**: `http://localhost:7001/docs` (after building with `mkdocs build`)
 
 ### Production
 - **Base URL**: `https://your-production-url.herokuapp.com` (replace with your actual production URL)
 - **Health Check**: `https://your-production-url.herokuapp.com/health`
-- **API Docs**: `https://your-production-url.herokuapp.com/docs`
+- **API Docs (Swagger)**: `https://your-production-url.herokuapp.com/swagger`
+- **API Docs (ReDoc)**: `https://your-production-url.herokuapp.com/redoc`
+- **Framework Docs**: `https://your-production-url.herokuapp.com/docs` (if deployed)
 
 ## 📋 Available Endpoints
 
@@ -98,7 +102,7 @@ The collection is organized into folders for better testing:
 ### Root
 - **GET** `/`
 - **Description**: Welcome message
-- **Response**: `{"message": "Welcome to the Ship AI Agents API!"}`
+- **Response**: `{"message": "Welcome to the AgentShip API!"}`
 
 ## 🔧 Environment Variables
 

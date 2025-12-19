@@ -1,39 +1,5 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# ... existing content ...
 
-# Virtual environments
-.venv
-
-# Environment variables
-.env
-.env.*
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-logs/
-*.log
-*.log.*
-*.log.*.*
-*.log.*.*.*
-*.log.*.*.*.*
-
-# Package manager files (using Pipfile for Heroku deployment)
-requirements.txt
-uv.lock
+# MkDocs
+site/
+.cache/

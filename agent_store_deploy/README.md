@@ -1,4 +1,4 @@
-# Ship AI Agents - Database Storage Setup
+# AgentShip - Database Storage Setup
 
 This directory contains scripts for setting up PostgreSQL database storage for AI Agents session management.
 

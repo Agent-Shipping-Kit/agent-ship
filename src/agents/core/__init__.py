@@ -1,4 +1,4 @@
-"""Core building blocks for Ship AI Agents.
+"""Core building blocks for AgentShip.
 
 This package contains the internal implementation of the BaseAgent and
 related helpers. Most users should import `BaseAgent` and `AgentType`

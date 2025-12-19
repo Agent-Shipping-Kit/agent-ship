@@ -1,4 +1,4 @@
-# Ship AI Agents - Heroku Deployment
+# AgentShip - Heroku Deployment
 
 This directory contains scripts and documentation for deploying the AI Agents service to Heroku.
 

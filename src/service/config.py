@@ -52,7 +52,8 @@ TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 # List of paths that don't require authentication
 PUBLIC_PATHS = [
     "/",
-    "/docs",
-    "/redoc",
+    "/docs",      # Framework documentation (MkDocs)
+    "/swagger",   # Swagger UI (API docs)
+    "/redoc",     # ReDoc (API docs)
     "/health",
 ]

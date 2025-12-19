@@ -1,4 +1,4 @@
-# Ship AI Agents - Local Development
+# AgentShip - Local Development
 
 This guide covers setting up and running the AI Agents service locally for development.
 
@@ -116,8 +116,9 @@ curl -X POST "http://localhost:7001/api/agents/chat" \
 ```
 
 ### API Documentation
-- **Swagger UI**: http://localhost:7001/docs
+- **Swagger UI**: http://localhost:7001/swagger
 - **ReDoc**: http://localhost:7001/redoc
+- **Framework Docs**: http://localhost:7001/docs (after building with `mkdocs build`)
 
 ## 🏗️ Project Structure
 

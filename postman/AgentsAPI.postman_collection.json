@@ -50,14 +50,14 @@
       "response": []
     },
     {
-      "name": "API Documentation",
+      "name": "Swagger UI (API Documentation)",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/docs",
+          "raw": "{{base_url}}/swagger",
           "host": ["{{base_url}}"],
-          "path": ["docs"]
+          "path": ["swagger"]
         }
       },
       "response": []
