@@ -11,7 +11,6 @@ fastapi = "==0.119.0"
 uvicorn = "==0.37.0"
 pydantic = "==2.12.0"
 pydantic-settings = "==2.11.0"
-
 # Google Cloud Dependencies
 google-api-python-client = "==2.184.0"
 google-cloud-aiplatform = "==1.115.0"
@@ -22,34 +21,28 @@ google-cloud-storage = "==2.19.0"
 google-genai = "==1.36.0"
 google-auth = "==2.41.1"
 authlib = "==1.6.5"
-
 # Database Dependencies
 sqlalchemy = "==2.0.44"
 sqlalchemy-spanner = "==1.17.0"
 alembic = "==1.17.0"
 psycopg2 = "==2.9.11"
 psycopg2-binary = "==2.9.11"
-
 # Azure Dependencies
 azure-storage-blob = "==12.26.0"
 azure-core = "==1.35.1"
-
 # PDF Processing
 PyPDF2 = "==3.0.1"
 PyMuPDF = "==1.26.5"
-
 # Observability and Monitoring
 opentelemetry-api = "==1.37.0"
 opentelemetry-sdk = "==1.37.0"
 opentelemetry-exporter-gcp-trace = "==1.9.0"
 opentelemetry-exporter-otlp = "==1.37.0"
 arize = "==7.51.0"
-
 # AI/ML Dependencies
 openai = "==2.3.0"
 tiktoken = "==0.12.0"
 tokenizers = "==0.22.1"
-
 # Web Framework Dependencies
 starlette = "==0.48.0"
 sse-starlette = "==3.0.2"
@@ -58,7 +51,6 @@ anyio = "==4.11.0"
 tenacity = ">=8.5.0"
 watchdog = "==6.0.0"
 httpx = "*"
-
 # Utility Dependencies
 tzlocal = ">=5.3.0"
 python-dateutil = "==2.9.0.post0"
@@ -71,11 +63,11 @@ shapely = "==2.1.2"
 graphviz = "==0.21"
 mcp = "==1.17.0"
 gunicorn = "==23.0.0"
-
 # Logging
 colorlog = "==6.9.0"
 python-json-logger = "==4.0.0"
 opik = "==1.8.63"
+pytest-asyncio = "*"
 
 [dev-packages]
 pytest = "*"

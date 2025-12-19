@@ -32,3 +32,10 @@ instruction_template: >
   Your output should be in the following format. Try to keep a balance between detailed and concise. In case you feel like using markdown, feel free to do so :
   HealthAssistantAnswerOutput model:
   - answer: str
+
+tools:
+  # Uses the conversation insights summary agent as a tool.
+  # This lets the health assistant delegate to it when needed.
+  - type: agent
+    id: conversation_insights_summary
+    agent_class: src.agents.all_agents.health_assistant_agent.sub_agents.conversation_insights_summary_agent.ConversationInsightsSummaryAgent

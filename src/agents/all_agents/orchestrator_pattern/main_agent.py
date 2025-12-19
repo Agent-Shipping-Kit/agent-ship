@@ -35,20 +35,9 @@ class TripPlannerAgent(BaseAgent):
             output_schema=TripPlannerOutput,
             agent_type=AgentType.LLM_AGENT
         )
-    
-    def _create_tools(self) -> List[FunctionTool]:
-        """Create tools for the agent (sub-agents as tools)."""
-        flight_agent = FlightPlannerAgent()
-        hotel_agent = HotelPlannerAgent()
-        trip_summary_agent = TripSummaryAgent()
-        return [
-            AgentTool(flight_agent.agent),
-            AgentTool(hotel_agent.agent),
-            AgentTool(trip_summary_agent.agent)
-        ]
-    
-    # No need to override chat() - base class handles it!
-    # No need to override _create_sub_agents() - using tools instead
+
+    # Tools are now configured via YAML (`tools` section in main_agent.yaml).
+    # No need to override _create_tools() or _create_sub_agents().
 
 
 if __name__ == "__main__":

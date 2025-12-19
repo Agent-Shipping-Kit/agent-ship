@@ -47,13 +47,8 @@ class ConversationInsightsSummaryAgent(BaseAgent):
         limit = self.get_limit(request.features)
         return ConversationInsightsSummaryInput(
             user_id=request.user_id,
-            limit=limit
+            limit=limit,
         )
 
-    def _create_tools(self) -> List[FunctionTool]:
-        """Create tools for the agent."""
-        insights_tool = ConversationInsightsTool()
-        return [FunctionTool(insights_tool.run)]
-    
-    # No need to override chat() - base class handles it!
-    # No need to override _create_sub_agents() - defaults to empty list
+    # Tools are now configured via YAML (`tools` section in conversation_insights_summary_agent.yaml).
+    # No need to override _create_tools() or _create_sub_agents().

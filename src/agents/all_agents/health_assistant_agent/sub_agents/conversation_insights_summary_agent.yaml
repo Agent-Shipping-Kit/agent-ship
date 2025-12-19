@@ -24,3 +24,10 @@ instruction_template: >
   
   ConversationInsightsSummaryOutput model:
   - summary: str
+
+tools:
+  # Function tool that fetches conversation insights from the backend.
+  - type: function
+    id: fetch_conversation_insights_tool
+    import: src.agents.tools.conversation_insights_tool.ConversationInsightsTool
+    method: run

@@ -39,13 +39,8 @@ class HealthAssistantAgent(BaseAgent):
         return HealthAssistantInput(
             message=request.query if isinstance(request.query, str) else str(request.query),
             session_id=request.session_id,
-            user_id=request.user_id
+            user_id=request.user_id,
         )
 
-    def _create_tools(self) -> List[FunctionTool]:
-        """Create tools for the agent."""
-        conversation_insights_summary_agent = ConversationInsightsSummaryAgent()
-        return [AgentTool(conversation_insights_summary_agent.agent)]
-    
-    # No need to override chat() - base class handles it!
-    # No need to override _create_sub_agents() - defaults to empty list
+    # Tools are now configured via YAML (`tools` section in main_agent.yaml).
+    # No need to override _create_tools() or _create_sub_agents().

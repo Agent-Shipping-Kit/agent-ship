@@ -1,9 +1,9 @@
 from src.agents.configs.llm_provider_config import (
-    LLMModel, 
+    LLMModel,
     LLMProviderName,
-    LLMProviderConfig
+    LLMProviderConfig,
 )
-from typing import List
+from typing import List, Any, Dict
 import yaml
 import os
 
@@ -18,9 +18,17 @@ class AgentConfig:
     It is also used to get the agent configuration from a YAML file.
     """
 
-    def __init__(self, llm_provider_name: LLMProviderName, llm_model: LLMModel = LLMModel.GPT_4O_MINI, 
-                temperature: float = 0.4, agent_name: str='', description: str='', instruction_template: str='', 
-                tags: List[str]=[]):
+    def __init__(
+        self,
+        llm_provider_name: LLMProviderName,
+        llm_model: LLMModel = LLMModel.GPT_4O_MINI,
+        temperature: float = 0.4,
+        agent_name: str = "",
+        description: str = "",
+        instruction_template: str = "",
+        tags: List[str] = [],
+        tools: List[Dict[str, Any]] | None = None,
+    ):
         self.model_provider = LLMProviderConfig.get_llm_provider(llm_provider_name)
         self.model = llm_model
         self.temperature = temperature
@@ -28,6 +36,11 @@ class AgentConfig:
         self.description = description
         self.tags = tags
         self.instruction_template = instruction_template
+
+        # Optional tool configuration loaded from YAML.
+        # Each entry is a dict describing how to construct a tool for this agent.
+        # The BaseAgent class is responsible for interpreting this structure.
+        self.tools: List[Dict[str, Any]] = tools or []
 
         # Observability is configured purely via environment per Opik guide
 
@@ -64,17 +77,18 @@ class AgentConfig:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Agent config file not found: {file_path}")
         
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             config = yaml.safe_load(file)
 
         return cls(
-            llm_provider_name=LLMProviderName(config['llm_provider_name']),
-            llm_model=LLMModel(config['llm_model']),
-            temperature=config['temperature'],
-            agent_name=config['agent_name'  ],
-            description=config['description'],
-            instruction_template=config['instruction_template'],
-            tags=config['tags']
+            llm_provider_name=LLMProviderName(config["llm_provider_name"]),
+            llm_model=LLMModel(config["llm_model"]),
+            temperature=config["temperature"],
+            agent_name=config["agent_name"],
+            description=config["description"],
+            instruction_template=config["instruction_template"],
+            tags=config.get("tags", []),
+            tools=config.get("tools", []) or [],
         )
 
     def __str__(self):
