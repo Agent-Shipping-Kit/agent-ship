@@ -14,12 +14,26 @@ instruction_template: >
   - user_id: The user id to answer the question.
 
   TOOLS AVAILABLE:
-  You can use the following tools to fetch the conversation insights if you need to:
-  - fetch_conversation_insights_tool
+  
+  Summary Agents (Recommended - use these for summarized information):
+  - conversation_insights_summary: Summarizes conversation insights from the past 60 days
+  - voice_notes_summary: Summarizes voice notes from the past 30 days
+  - medical_reports_summary: Summarizes medical reports from the past 30 days
+  
+  Direct Tools (Use when you need raw data):
+  - fetch_conversation_insights_tool: Fetches raw conversation insights from the past 60 days
+  - fetch_voice_notes_tool: Fetches raw voice notes from the past 30 days
+  - fetch_medical_reports_tool: Fetches raw medical reports from the past 30 days
 
-  Input for the fetch_conversation_insights_tool tool is a JSON object with the following fields:
-  - user_id: The user id to fetch the conversation insights for.
-  - limit: The number of conversation insights to fetch. Default is 5.
+  Input for summary agents is a JSON object with:
+  - user_id: The user id to fetch data for (required)
+  - limit: The number of items to fetch (optional, defaults: 5 for conversations, 10 for others)
+
+  Input for direct tools is a JSON object with:
+  - user_id: The user id to fetch data for (required)
+  - limit: The number of items to fetch (optional, default varies by tool)
+
+  IMPORTANT: All tools automatically filter data by date ranges (60 days for conversations, 30 days for voice notes and medical reports) to ensure fast responses. Prefer using summary agents when the user asks about their health data, as they provide concise summaries.
 
   CRITERIA FOR ANSWERING QUESTIONS:
   - focus on providing the most relevant answer to the question based on the user's health data, conversations, action items, etc.
@@ -34,8 +48,33 @@ instruction_template: >
   - answer: str
 
 tools:
-  # Uses the conversation insights summary agent as a tool.
-  # This lets the health assistant delegate to it when needed.
+  # Sub-agents for summarizing different types of health data
+  # These agents fetch and summarize data, making it easier for the main agent to use
   - type: agent
     id: conversation_insights_summary
     agent_class: src.agents.all_agents.health_assistant_agent.sub_agents.conversation_insights_summary_agent.ConversationInsightsSummaryAgent
+  
+  - type: agent
+    id: voice_notes_summary
+    agent_class: src.agents.all_agents.health_assistant_agent.sub_agents.voice_notes_summary_agent.VoiceNotesSummaryAgent
+  
+  - type: agent
+    id: medical_reports_summary
+    agent_class: src.agents.all_agents.health_assistant_agent.sub_agents.medical_reports_summary_agent.MedicalReportsSummaryAgent
+  
+  # Direct function tools for fetching health data with date filtering (past 60 days for conversations, 30 days for others)
+  # Use these when you need raw data instead of summaries
+  - type: function
+    id: fetch_conversation_insights_tool
+    import: src.agents.tools.conversation_insights_tool.ConversationInsightsTool
+    method: run
+  
+  - type: function
+    id: fetch_voice_notes_tool
+    import: src.agents.tools.voice_notes_tool.VoiceNotesTool
+    method: run
+  
+  - type: function
+    id: fetch_medical_reports_tool
+    import: src.agents.tools.medical_reports_tool.MedicalReportsTool
+    method: run
