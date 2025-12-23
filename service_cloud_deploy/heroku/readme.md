@@ -104,7 +104,7 @@ heroku restart web.1 --app ai-agents-alpha
 ### 3. Database Connection Issues
 **Problem**: `Database related module not found`
 **Solution**: 
-- Check if `psycopg2-binary` is in requirements.txt
+- Check if `psycopg2-binary` is in Pipfile
 - Verify `SESSION_STORE_URI` is set correctly
 
 ### 4. App Won't Start
