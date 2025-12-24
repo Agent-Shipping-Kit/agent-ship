@@ -19,7 +19,7 @@ class ConversationInsightsInput(BaseModel):
     conversation_turns: List[ConversationTurn] = Field(description="The medical conversation to generate insights for.")
     summary_length: int = Field(description="The length of the summary to generate.", default=200)
     num_of_key_findings: int = Field(description="The number of key findings to generate.", default=5)
-    num_of_action_items: int = Field(description="The number of action items to generate.", default=5)
+    num_of_action_items: int = Field(description="The number of action items to generate (should be 3-4, focusing on top priority patient actions).", default=3)
 
 
 class ConversationInsightsOutput(BaseModel):
@@ -64,11 +64,11 @@ class MedicalConversationInsightsAgent(BaseAgent):
     @opik.track 
     def get_num_of_action_items(self, features: List[FeatureMap]) -> int:
         """Get the number of action items from the features."""
-        num_of_action_items = 5
+        num_of_action_items = 3  # Default to 3, max 4 for focused, high-quality action items
         if features:
             for feature_map in features:
                 if feature_map.feature_name == "num_of_action_items":
-                    num_of_action_items = feature_map.feature_value
+                    num_of_action_items = min(feature_map.feature_value, 4)  # Cap at 4
         return num_of_action_items
 
     def parse_conversation_turns(self, query: List[Dict]) -> List[ConversationTurn]:

@@ -83,7 +83,13 @@ def build_tools_from_config(agent_config: AgentConfig) -> List[FunctionTool]:
                             agent_config.agent_name,
                         )
                         continue
-                    tools.append(FunctionTool(func))
+                    # If the object has to_function_tool method, use it to get proper name/description
+                    if hasattr(target_obj, 'to_function_tool') and callable(getattr(target_obj, 'to_function_tool')):
+                        tool = target_obj.to_function_tool()
+                        logger.info(f"Registered tool '{target_obj.tool_name}' with description: {target_obj.tool_description[:100]}...")
+                        tools.append(tool)
+                    else:
+                        tools.append(FunctionTool(func))
                 else:
                     if not callable(target):
                         logger.warning(

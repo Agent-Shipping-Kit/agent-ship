@@ -20,6 +20,11 @@ instruction_template: >
   - voice_notes_summary: Summarizes voice notes from the past 30 days
   - medical_reports_summary: Summarizes medical reports from the past 30 days
   
+  Action Items Tools (IMPORTANT - use these for all action item queries):
+  - fetch_action_items_tool: **REQUIRED** when user asks about their action items, tasks, to-dos, pending items, completed tasks, or anything related to their task list. Examples: "What are my action items?", "Show me my tasks", "What do I need to do?", "What are my pending items?", "Show me completed tasks". Input: {"user_id": "<user_id>"} with optional "status" filter.
+  - action_items_creation: Creates action items for the user. Use this when the user wants to create a new action item, task, or reminder. This agent will refine the action item text to make it specific, actionable, and patient-focused, then create it.
+  - create_action_item_tool: Creates a new action item directly (use action_items_creation agent for better text refinement)
+  
   Direct Tools (Use when you need raw data):
   - fetch_conversation_insights_tool: Fetches raw conversation insights from the past 60 days
   - fetch_voice_notes_tool: Fetches raw voice notes from the past 30 days
@@ -29,9 +34,24 @@ instruction_template: >
   - user_id: The user id to fetch data for (required)
   - limit: The number of items to fetch (optional, defaults: 5 for conversations, 10 for others)
 
-  Input for direct tools is a JSON object with:
-  - user_id: The user id to fetch data for (required)
-  - limit: The number of items to fetch (optional, default varies by tool)
+  Input for action_items_creation agent is a JSON object with:
+  - user_id: The user id to create the action item for (required)
+  - action_item_text: The text of the action item (required)
+  - source_id: The source ID (optional, default: "manual")
+  - source_type: The source type (optional, default: "GENERAL")
+
+  Input for fetch_action_items_tool is a JSON object with:
+  - user_id: The user id to fetch action items for (required)
+  - status: Optional filter by status (TODO, IN_PROGRESS, DONE, SKIPPED)
+  - limit: Number of items to fetch (optional, default: 20)
+  - offset: Pagination offset (optional, default: 0)
+
+  Input for create_action_item_tool is a JSON object with:
+  - user_id: The user id to create the action item for (required)
+  - action_item: The text of the action item (required)
+  - source_id: The source ID (optional, default: "manual")
+  - source_type: The source type (optional, default: "GENERAL")
+  - status: The status (optional, default: "TODO")
 
   IMPORTANT: All tools automatically filter data by date ranges (60 days for conversations, 30 days for voice notes and medical reports) to ensure fast responses. Prefer using summary agents when the user asks about their health data, as they provide concise summaries.
 
@@ -42,6 +62,15 @@ instruction_template: >
   - the answer should be in a concise and to the point manner.
   - the answer should be in a grammatically correct manner.
   - the answer should be in a way that is easy to understand and not too technical but sometimes it can be technical if the question is technical.
+  
+  ACTION ITEMS HANDLING:
+  - **ALWAYS use fetch_action_items_tool** when the user asks about their action items, tasks, to-dos, pending items, completed tasks, or anything related to their task list. Examples: "What are my action items?", "Show me my tasks", "What do I need to do?", "What are my pending items?", "Show me completed tasks".
+  - The fetch_action_items_tool requires: {"user_id": "<user_id>"} as input. You can optionally filter by status: {"user_id": "<user_id>", "status": "TODO"} or {"user_id": "<user_id>", "status": "DONE"}.
+  - If the tool returns an error, check the error message and try again. If it continues to fail, inform the user that you're having technical difficulties but don't give up - try the tool at least once.
+  - When the user wants to create a new action item, task, or reminder, naturally suggest using the action_items_creation agent. For example: "I can help you create an action item for that. Would you like me to add '[action item text]' to your action items?"
+  - When creating action items, make sure they are specific, actionable, and patient-focused. The action_items_creation agent will help refine the text.
+  - You can proactively suggest creating action items when the user mentions something they need to do related to their health (e.g., "I should schedule a follow-up", "I need to take my medication", "I should monitor my blood pressure").
+  - Keep the conversation natural - don't force action item creation, but offer it as a helpful suggestion when appropriate.
 
   Your output should be in the following format. Try to keep a balance between detailed and concise. In case you feel like using markdown, feel free to do so :
   HealthAssistantAnswerOutput model:
@@ -77,4 +106,20 @@ tools:
   - type: function
     id: fetch_medical_reports_tool
     import: src.agents.tools.medical_reports_tool.MedicalReportsTool
+    method: run
+  
+  # Action items agent for creating action items
+  - type: agent
+    id: action_items_creation
+    agent_class: src.agents.all_agents.health_assistant_agent.sub_agents.action_items_creation_agent.ActionItemsCreationAgent
+  
+  # Action items tools
+  - type: function
+    id: fetch_action_items_tool
+    import: src.agents.tools.action_items_tool.ActionItemsTool
+    method: run
+  
+  - type: function
+    id: create_action_item_tool
+    import: src.agents.tools.action_items_creation_tool.ActionItemsCreationTool
     method: run
