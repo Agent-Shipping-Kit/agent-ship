@@ -67,9 +67,10 @@ colorlog = "==6.9.0"
 python-json-logger = "==4.0.0"
 opik = "==1.8.63"
 pytest-asyncio = "*"
-mkdocs = "*"
-mkdocs-material = "*"
-mkdocs-mermaid2-plugin = "*"
 
 [dev-packages]
 pytest = "*"
+sphinx = "*"
+furo = "*"
+sphinx-autodoc-typehints = "*"
+sphinx-autobuild = "*"

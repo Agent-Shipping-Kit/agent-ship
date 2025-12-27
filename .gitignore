@@ -56,6 +56,10 @@ htmlcov/
 site/
 .cache/
 
+# Sphinx
+docs_sphinx/build/
+docs_sphinx/source/_build/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 

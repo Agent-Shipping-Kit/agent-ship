@@ -116,11 +116,15 @@ clean: ## Clean temporary files and caches
 	find . -type f -name ".coverage" -delete 2>/dev/null || true
 	@echo "✅ Clean complete"
 
-docs-serve: ## Serve documentation locally
-	pipenv run mkdocs serve
+docs-serve: ## Serve Sphinx documentation locally
+	cd docs_sphinx && pipenv run sphinx-autobuild source build/html --host 0.0.0.0 --port 8000
 
-docs-build: ## Build documentation site
-	pipenv run mkdocs build
+docs-build: ## Build Sphinx documentation
+	cd docs_sphinx && pipenv run sphinx-build -b html source build/html
 
-docs-deploy: ## Deploy documentation to GitHub Pages
-	pipenv run mkdocs gh-deploy
+docs-html: docs-build ## Alias for docs-build
+	@echo "📚 Documentation built in docs_sphinx/build/html/"
+
+docs-clean: ## Clean Sphinx build files
+	rm -rf docs_sphinx/build/*
+	rm -rf docs_sphinx/source/_build

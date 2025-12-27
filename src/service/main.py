@@ -48,12 +48,12 @@ async def health_check():
     '''
     return {"status": "running"}
 
-# Serve MkDocs documentation at /docs (single source of truth)
+# Serve Sphinx documentation at /docs (single source of truth)
 # If not built locally, show a helpful page with links
-docs_site_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "site")
-if os.path.exists(docs_site_path) and os.path.exists(os.path.join(docs_site_path, "index.html")):
-    # Mount static files for MkDocs site at /docs
-    app.mount("/docs", StaticFiles(directory=docs_site_path, html=True), name="docs")
+docs_sphinx_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "docs_sphinx", "build", "html")
+if os.path.exists(docs_sphinx_path) and os.path.exists(os.path.join(docs_sphinx_path, "index.html")):
+    # Mount static files for Sphinx site at /docs
+    app.mount("/docs", StaticFiles(directory=docs_sphinx_path, html=True), name="docs")
 else:
     # If docs not built, show a helpful page with links
     @app.get("/docs", response_class=HTMLResponse)
@@ -83,8 +83,12 @@ else:
                 <strong>API Documentation (Swagger)</strong><br>
                 <small>Interactive API reference and testing</small>
             </a>
+            <a href="/swagger" class="link">
+                <strong>API Reference (Sphinx)</strong><br>
+                <small>Auto-generated API documentation from code</small>
+            </a>
             <a href="https://harshuljain13.github.io/ship-ai-agents/" class="link" target="_blank">
-                <strong>Framework Documentation (GitHub Pages)</strong><br>
+                <strong>User Guides (GitHub Pages)</strong><br>
                 <small>Complete guides, tutorials, and examples</small>
             </a>
             <a href="/redoc" class="link">
