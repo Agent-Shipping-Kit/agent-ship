@@ -1,31 +1,65 @@
 # Quick Start
 
-Create your first agent in minutes.
+Get AgentShip running in under 5 minutes.
 
-## Step 1: Create Agent Directory
+## Step 1: Clone and Setup
+
+```bash
+git clone https://github.com/harshuljain13/ship-ai-agents.git
+cd ship-ai-agents/ai/ai-ecosystem
+make docker-setup
+```
+
+The script will:
+- ✅ Check Docker installation
+- ✅ Create `.env` file automatically
+- ✅ Set up PostgreSQL
+- ✅ Build and start everything
+- ✅ Wait for services to be ready
+
+**Done!** Open http://localhost:7001/docs
+
+## Step 2: Add Your API Key
+
+Edit `.env` and add at least one LLM API key:
+
+```bash
+nano .env
+```
+
+Add:
+```env
+OPENAI_API_KEY=your-actual-key-here
+```
+
+Then restart:
+```bash
+make docker-down
+make docker-up
+```
+
+## Step 3: Create Your First Agent
+
+### Create the directory
 
 ```bash
 mkdir -p src/agents/all_agents/my_agent
 cd src/agents/all_agents/my_agent
 ```
 
-## Step 2: Define Configuration
-
-Create `main_agent.yaml`:
+### Add configuration (`main_agent.yaml`)
 
 ```yaml
 agent_name: my_agent
 llm_provider_name: openai
 llm_model: gpt-4o
 temperature: 0.4
-description: My custom agent
+description: My helpful assistant
 instruction_template: |
   You are a helpful assistant that answers questions clearly and concisely.
 ```
 
-## Step 3: Implement Agent Class
-
-Create `main_agent.py`:
+### Add code (`main_agent.py`)
 
 ```python
 from src.agents.all_agents.base_agent import BaseAgent
@@ -41,30 +75,45 @@ class MyAgent(BaseAgent):
         )
 ```
 
-## Step 4: Use Your Agent
+### Test it!
 
-```python
-from src.models.base_models import AgentChatRequest
-from src.agents.all_agents.my_agent.main_agent import MyAgent
+Restart the server (if needed), then:
 
-agent = MyAgent()
-
-request = AgentChatRequest(
-    agent_name="my_agent",
-    user_id="user-123",
-    session_id="session-456",
-    query="Hello, how are you?",
-    features=[]
-)
-
-response = await agent.chat(request)
-print(response.agent_response.text)
+```bash
+curl -X POST "http://localhost:7001/api/agents/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_name": "my_agent",
+    "user_id": "test-user",
+    "session_id": "test-session",
+    "query": "Hello, how are you?",
+    "features": []
+  }'
 ```
 
-That's it! Your agent is automatically discovered and registered. No manual registration needed.
+**That's it!** Your agent is automatically discovered and ready to use.
 
-## Next Steps
+---
+
+## 🐍 Local Development (Alternative)
+
+If you prefer local development without Docker:
+
+```bash
+make setup
+make dev
+```
+
+See [Installation Guide](installation.md) for details.
+
+---
+
+## 📚 Next Steps
 
 - Learn about [Agent Patterns](../building-agents/patterns/single-agent.md)
 - Add [Tools](../building-agents/tools.md) to your agent
-- Configure [Advanced Settings](../getting-started/configuration.md)
+- Read the [Full Documentation](../index.md)
+
+---
+
+**Questions?** Check the [Full Documentation](../index.md) or [open an issue](https://github.com/harshuljain13/ship-ai-agents/issues).

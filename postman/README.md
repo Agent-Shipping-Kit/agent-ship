@@ -336,6 +336,6 @@ GET {{base_url}}/health
 ## 📚 Related Documentation
 
 - [Main README](../README.md) - High-level architecture
-- [Local Development](../LOCAL_DEVELOPMENT.md) - Local setup guide
+- [Installation Guide](../docs/getting-started/installation.md) - Local setup guide
 - [Heroku Deployment](../service_cloud_deploy/heroku/README.md) - Production deployment
 - [Database Setup](../agent_store_deploy/README.md) - Database configuration

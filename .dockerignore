@@ -26,11 +26,6 @@ ENV/
 env/
 .venv
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
 # IDE
 .vscode/
 .idea/
@@ -56,16 +51,24 @@ htmlcov/
 site/
 .cache/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Git
+.git/
+.gitignore
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Environment
+.env
+.env.local
+.env.*.local
 
-# Pyre type checker
-.pyre/
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
 
 # Database
 *.db
@@ -76,3 +79,11 @@ dmypy.json
 *.tmp
 *.bak
 *.swp
+
+# CI/CD
+.github/
+
+# Other
+node_modules/
+.npm/
+

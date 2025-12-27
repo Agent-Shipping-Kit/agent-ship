@@ -166,6 +166,6 @@ cd ../../agent_store_deploy
 ## 🔗 Related Documentation
 
 - [Main README](../../README.md) - High-level architecture
-- [Local Development](../../LOCAL_DEVELOPMENT.md) - Local setup guide
+- [Installation Guide](../../docs/getting-started/installation.md) - Local setup guide
 - [Agent Store Deploy](../../agent_store_deploy/README.md) - PostgreSQL setup
 - [Postman Collection](../../postman/README.md) - API testing guide

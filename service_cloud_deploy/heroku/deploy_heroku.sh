@@ -162,8 +162,21 @@ fi
 print_status "Setting up buildpacks..."
 heroku buildpacks:set heroku/python --app "$APP_NAME" || print_warning "Buildpack already set or failed to set"
 
-# Note: PostgreSQL storage setup is handled separately
-# Run ./agent_store_deploy/setup_heroku_postgres.sh to set up PostgreSQL storage
+# Set up PostgreSQL if it doesn't exist
+print_status "Checking PostgreSQL addon..."
+if ! heroku addons:info postgresql --app "$APP_NAME" &> /dev/null; then
+    print_info "PostgreSQL addon not found. Setting it up..."
+    if [ -f "agent_store_deploy/setup_heroku_postgres.sh" ]; then
+        chmod +x agent_store_deploy/setup_heroku_postgres.sh
+        APP_NAME="$APP_NAME" ./agent_store_deploy/setup_heroku_postgres.sh
+        print_success "PostgreSQL addon created"
+    else
+        print_warning "PostgreSQL setup script not found. Creating addon manually..."
+        heroku addons:create heroku-postgresql:essential-0 --app "$APP_NAME" || print_warning "Failed to create PostgreSQL addon"
+    fi
+else
+    print_success "PostgreSQL addon already exists"
+fi
 
 # Clear build cache to ensure fresh install
 print_status "Clearing build cache..."

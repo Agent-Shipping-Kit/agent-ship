@@ -1,61 +1,65 @@
-# AgentShip
+# AgentShip Documentation
 
-**An Agent Shipping Kit - Production-ready framework for building, deploying, and operating AI agents**
+**Build and deploy AI agents in minutes, not weeks.**
 
-## Introduction
+## 🚀 Start Here
 
-AgentShip is an Agent Shipping Kit—a complete foundation for building AI agents using Google's Agent Development Kit (ADK). It eliminates infrastructure complexity so you can focus on building intelligent solutions. The framework handles agent discovery, configuration management, session persistence, observability, and deployment—everything needed to go from development to production.
+1. **[Quick Start](getting-started/quickstart.md)** - Get running in 5 minutes ⭐
+2. **[Docker Setup](docker-setup.md)** - One-command setup (recommended)
+3. **[Create Your First Agent](getting-started/quickstart.md#step-3-create-your-first-agent)** - Build an agent
 
-Built on FastAPI and Google ADK, AgentShip supports multiple LLM providers (OpenAI, Google, Anthropic) and provides three proven agent patterns: orchestrator, single-agent, and tool-based architectures.
+## 📖 Guides
 
-## Key Features
+### Getting Started
+- [Quick Start](getting-started/quickstart.md) - Fastest way to get started
+- [Installation](getting-started/installation.md) - Local development setup
+- [Configuration](getting-started/configuration.md) - Environment variables
 
-**Declarative Configuration**: Define agents in YAML files with automatic discovery and registration. No boilerplate code required.
+### Building Agents
+- [Overview](building-agents/overview.md) - Introduction to agents
+- [Agent Patterns](building-agents/patterns/) - Orchestrator, single-agent, tool-based
+- [Tools](building-agents/tools.md) - Adding tools to agents
+- [Agent Configuration](building-agents/agent-configuration.md) - YAML configuration
 
-**Modular Architecture**: Core functionality is separated into focused modules (`core/`, `configs/`, `observability/`), making the framework easy to understand, maintain, and extend.
+### API Reference
+- [BaseAgent](api/base-agent.md) - Core agent class
+- [AgentConfig](api/agent-config.md) - Configuration reference
+- [Models](api/models.md) - Data models
 
-**Production-Ready**: FastAPI backend with OpenAPI documentation, PostgreSQL session management, Opik observability integration, and comprehensive test suite.
+### Deployment
+- [Overview](deployment/overview.md) - Deployment guide
+- [Heroku](deployment/heroku.md) - Deploy to Heroku
 
-**Multiple Agent Patterns**: Orchestrator pattern for coordinating sub-agents, single-agent pattern for focused tasks, and tool pattern for comprehensive tooling capabilities.
+### Testing
+- [Overview](testing/overview.md) - Testing guide
+- [Writing Tests](testing/writing-tests.md) - How to write tests
 
-## Quick Links
+## 🎯 Quick Reference
 
-- [Installation](getting-started/installation.md) - Get started in minutes
-- [Quick Start](getting-started/quickstart.md) - Build your first agent
-- [Building Agents](building-agents/overview.md) - Learn agent patterns
-- [API Reference](api/base-agent.md) - Complete API documentation
-- [Deployment](deployment/overview.md) - Deploy to production
-
-## Installation
-
+**Setup:**
 ```bash
-pipenv install
+make docker-setup  # One command!
 ```
 
-See the [Installation Guide](getting-started/installation.md) for detailed setup instructions.
+**Create Agent:**
+1. Create directory: `src/agents/all_agents/my_agent/`
+2. Add `main_agent.yaml` and `main_agent.py`
+3. Done! Agent is auto-discovered.
 
-## Quick Example
-
-```python
-from src.agents.all_agents.base_agent import BaseAgent
-from src.models.base_models import TextInput, TextOutput
-from src.agents.utils.path_utils import resolve_config_path
-
-class MyAgent(BaseAgent):
-    def __init__(self):
-        super().__init__(
-            config_path=resolve_config_path(relative_to=__file__),
-            input_schema=TextInput,
-            output_schema=TextOutput
-        )
+**Common Commands:**
+```bash
+make docker-up      # Start
+make docker-down    # Stop
+make dev            # Local dev server
+make test           # Run tests
 ```
 
-That's it! Your agent is automatically discovered and registered.
+## 💡 Need Help?
 
-## Documentation Structure
+- [Quick Start Guide](getting-started/quickstart.md) - Start here
+- [GitHub Issues](https://github.com/harshuljain13/ship-ai-agents/issues) - Report bugs
+- [Contributing](contributing.md) - Contribute to the project
 
-- **Getting Started**: Installation, configuration, and your first agent
-- **Building Agents**: Agent patterns, configuration, and tools
-- **API Reference**: Complete API documentation for all classes and modules
-- **Deployment**: Production deployment guides
-- **Testing**: Writing and running tests
+---
+
+**Everything you need to build and deploy AI agents.** 🚀

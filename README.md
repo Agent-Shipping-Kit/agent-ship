@@ -1,85 +1,58 @@
-# AgentShip - Agent Shipping Kit
+# AgentShip
 
-**An Agent Shipping Kit - Production-ready framework for building, deploying, and operating AI agents**
+**Build and deploy AI agents in minutes, not weeks.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)]
 
 ---
 
-## Introduction
+## 🚀 Quick Start
 
-AgentShip is an Agent Shipping Kit—a complete foundation for building AI agents using Google's Agent Development Kit (ADK). It eliminates infrastructure complexity so you can focus on building intelligent solutions. The framework handles agent discovery, configuration management, session persistence, observability, and deployment—everything needed to go from development to production.
-
-Built on FastAPI and Google ADK, AgentShip supports multiple LLM providers (OpenAI, Google, Anthropic) and provides three proven agent patterns: orchestrator, single-agent, and tool-based architectures.
-
-## Key Features
-
-**Declarative Configuration**: Define agents in YAML files with automatic discovery and registration. No boilerplate code required.
-
-**Modular Architecture**: Core functionality is separated into focused modules (`core/`, `configs/`, `observability/`), making the framework easy to understand, maintain, and extend.
-
-**Production-Ready**: FastAPI backend with OpenAPI documentation, PostgreSQL session management, Opik observability integration, and comprehensive test suite.
-
-**Multiple Agent Patterns**: Orchestrator pattern for coordinating sub-agents, single-agent pattern for focused tasks, and tool pattern for comprehensive tooling capabilities.
-
-## Installation
-
+### First Time Setup
 ```bash
-git clone https://github.com/yourusername/agentship.git
-cd agentship
-pipenv install
+git clone https://github.com/harshuljain13/ship-ai-agents.git
+cd ship-ai-agents/ai/ai-ecosystem
+make docker-setup
 ```
 
-## Quick Start
+**That's it!** The script will:
+- ✅ Check Docker installation
+- ✅ Create `.env` file
+- ✅ Prompt for your API key
+- ✅ Start everything
+- ✅ Open http://localhost:7001/swagger when ready
 
-### 1. Configure Environment
-
+### Next Time (After First Setup)
 ```bash
-cp env.example .env
-# Edit .env with your API keys (OpenAI, Google, or Anthropic)
+make docker-up      # Start containers (with hot-reload)
+make docker-down    # Stop containers
+make docker-logs    # View logs
 ```
 
-### 2. Set Up Database
+**Hot-reload enabled!** Edit code in `src/` and changes auto-reload.
+
+---
+
+## 📝 Create Your First Agent
 
 ```bash
-cd agent_store_deploy
-./setup_local_postgres.sh
-```
-
-### 3. Start the Service
-
-```bash
-pipenv run uvicorn src.service.main:app --reload --port 7001
-```
-
-Access the API documentation at http://localhost:7001/docs
-
-### 4. Create Your First Agent
-
-Create a new agent directory:
-
-```bash
+# 1. Create directory
 mkdir -p src/agents/all_agents/my_agent
 cd src/agents/all_agents/my_agent
-```
 
-Define the agent configuration in `main_agent.yaml`:
-
-```yaml
+# 2. Create main_agent.yaml
+cat > main_agent.yaml << EOF
 agent_name: my_agent
 llm_provider_name: openai
 llm_model: gpt-4o
 temperature: 0.4
-description: My custom agent
+description: My helpful assistant
 instruction_template: |
-  You are a helpful assistant that...
-```
+  You are a helpful assistant that answers questions clearly.
+EOF
 
-Implement the agent class in `main_agent.py`:
-
-```python
+# 3. Create main_agent.py
+cat > main_agent.py << EOF
 from src.agents.all_agents.base_agent import BaseAgent
 from src.models.base_models import TextInput, TextOutput
 from src.agents.utils.path_utils import resolve_config_path
@@ -91,157 +64,44 @@ class MyAgent(BaseAgent):
             input_schema=TextInput,
             output_schema=TextOutput
         )
+EOF
 ```
 
-Agents are automatically discovered and registered. No manual registration needed.
+Restart server → Agent is automatically discovered!
 
-## Usage
+---
 
-### Python API
+## 🛠️ Commands
 
-```python
-from src.models.base_models import AgentChatRequest
-from src.agents.all_agents.single_agent_pattern.main_agent import TranslationAgent
-
-agent = TranslationAgent()
-
-request = AgentChatRequest(
-    agent_name="translation_agent",
-    user_id="user-123",
-    session_id="session-456",
-    query={"text": "Hello", "from_language": "en", "to_language": "es"},
-    features=[]
-)
-
-response = await agent.chat(request)
-print(response.agent_response.translated_text)
-```
-
-### REST API
-
+### Local Development (Docker)
 ```bash
-curl -X POST "http://localhost:7001/api/agents/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "agent_name": "translation_agent",
-    "user_id": "test-user",
-    "session_id": "test-session",
-    "query": {"text": "Hello", "from_language": "en", "to_language": "es"},
-    "features": []
-  }'
+make docker-setup   # First-time setup (builds + starts)
+make docker-up      # Start containers (after first setup)
+make docker-down    # Stop containers
+make docker-restart # Restart containers
+make docker-logs    # View logs
 ```
 
-## Agent Configuration
-
-Agents are configured through YAML files. The YAML filename must match the Python filename (e.g., `main_agent.yaml` for `main_agent.py`).
-
-```yaml
-agent_name: translation_agent
-llm_provider_name: openai
-llm_model: gpt-4o
-temperature: 0.4
-description: Translates text between languages
-instruction_template: |
-  You are a translation expert...
-tools:
-  - type: function
-    id: custom_tool
-    import: src.agents.tools.my_tool.MyTool
-    method: run
-  - type: agent
-    id: sub_agent
-    agent_class: src.agents.all_agents.sub_agent.SubAgent
-```
-
-Tools can be function tools (import any Python class and method) or agent tools (use other agents as tools). Tool order is preserved from the YAML configuration.
-
-## Architecture
-
-The framework follows a modular architecture:
-
-**Agent Discovery**: Agents are automatically discovered from the filesystem based on `AGENT_DIRECTORIES` configuration and registered with the `AgentRegistry` on startup.
-
-**Configuration Management**: Agent configuration is loaded from YAML files with automatic path resolution. The `BaseAgent` class handles LLM setup, tool creation, and observability initialization.
-
-**Session Management**: Sessions are created automatically on first request and persisted in PostgreSQL. Conversation history is maintained across requests.
-
-**Observability**: Built-in Opik integration provides request/response tracing, performance metrics, token usage tracking, and structured logging.
-
-## Testing
-
-The framework includes a comprehensive test suite with mocked LLM calls for fast, reliable testing:
-
+### Deploy to Heroku
 ```bash
-# Run all tests
-pipenv run pytest tests/ -v
-
-# Run agent-specific tests
-pipenv run pytest tests/unit/agents/all_agents/ -v
-
-# Run with coverage
-pipenv run pytest tests/ --cov=src/agents
+make heroku-deploy  # Deploy to Heroku (one command)
 ```
 
-## Deployment
-
-### Heroku
-
+### Other Commands
 ```bash
-cd service_cloud_deploy/heroku
-./deploy_heroku.sh
+make help           # See all commands
+make dev            # Local dev server (no Docker)
+make test           # Run tests
 ```
 
-The deployment script handles database setup, environment variable configuration, application deployment, and health check verification.
+---
 
-## Environment Variables
+## 📚 Documentation
 
-```bash
-# Required: At least one LLM provider
-OPENAI_API_KEY=your_openai_api_key
-GOOGLE_API_KEY=your_google_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
+- [Quick Start](docs/getting-started/quickstart.md) - Detailed guide
+- [Building Agents](docs/building-agents/overview.md) - Agent patterns
+- [Full Docs](docs/index.md) - Everything
 
-# Required: Database for session management
-SESSION_STORE_URI=postgresql://user:password@host:port/database
+---
 
-# Optional: Observability
-OPIK_API_KEY=your_opik_api_key
-OPIK_WORKSPACE=your_workspace
-
-# Optional: Agent discovery (defaults to all agents)
-AGENT_DIRECTORIES=src/agents/all_agents
-
-# Optional: Logging
-LOG_LEVEL=INFO
-ENVIRONMENT=development
-```
-
-## Documentation
-
-**Framework Documentation**: [View Full Documentation](https://yourusername.github.io/ai-agent-framework/) | [Serve Locally](docs/index.md)
-
-**API Documentation**: Available at `/swagger` (Swagger UI) and `/redoc` (ReDoc) when running the service
-
-**Framework Docs**: Available at `/docs` when running the service (serves MkDocs site)
-
-**Additional Guides**:
-* [Local Development Guide](LOCAL_DEVELOPMENT.md)
-* [Database Setup Guide](agent_store_deploy/README.md)
-* [Heroku Deployment Guide](service_cloud_deploy/heroku/README.md)
-* [API Testing Guide](postman/README.md)
-
-### Serving Documentation Locally
-
-```bash
-pipenv run mkdocs serve
-```
-
-Access documentation at http://localhost:8000
-
-## Contributing
-
-Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
+**MIT License** | [GitHub](https://github.com/harshuljain13/ship-ai-agents)

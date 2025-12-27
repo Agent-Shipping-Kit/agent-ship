@@ -1,10 +1,10 @@
 site_name: AgentShip
 site_description: An Agent Shipping Kit - Production-ready framework for building, deploying, and operating AI agents
 site_author: AgentShip Contributors
-site_url: https://yourusername.github.io/agentship
+site_url: https://harshuljain13.github.io/ship-ai-agents
 
-repo_name: yourusername/agentship
-repo_url: https://github.com/yourusername/agentship
+repo_name: harshuljain13/ship-ai-agents
+repo_url: https://github.com/harshuljain13/ship-ai-agents
 edit_uri: edit/main/docs/
 
 theme:
@@ -56,8 +56,9 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started:
-    - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
+    - Docker Setup: docker-setup.md
+    - Local Installation: getting-started/installation.md
     - Configuration: getting-started/configuration.md
   - Building Agents:
     - Overview: building-agents/overview.md
