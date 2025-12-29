@@ -6,10 +6,11 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from dotenv import load_dotenv
 from src.agents.registry import discover_agents
 from src.service.routers.rest_router import router as rest_router
+from debug_ui.router import router as debug_router
 load_dotenv()
 
 # logger
@@ -105,6 +106,29 @@ else:
 discover_agents()
 
 app.include_router(rest_router)
+
+# Include Debug API router
+app.include_router(debug_router, prefix="/api/debug", tags=["debug"])
+
+# Serve Debug UI static files
+debug_ui_enabled = os.environ.get("DEBUG_UI_ENABLED", "true").lower() == "true"
+if debug_ui_enabled:
+    # debug_ui/ is at project root level
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    static_path = os.path.join(project_root, "debug_ui", "static")
+    if os.path.exists(static_path):
+        # Serve static files for debug UI
+        app.mount("/debug-ui/static", StaticFiles(directory=static_path), name="debug-static")
+        
+        @app.get("/debug-ui", response_class=HTMLResponse)
+        @app.get("/debug-ui/", response_class=HTMLResponse)
+        async def debug_ui():
+            """Serve the Debug UI."""
+            return FileResponse(os.path.join(static_path, "index.html"))
+        
+        logger.info("🔧 Debug UI mounted at /debug-ui")
+    else:
+        logger.warning(f"Debug UI static files not found at {static_path}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7001))

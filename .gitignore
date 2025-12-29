@@ -29,6 +29,7 @@ env/
 # Environment variables
 .env
 .env.local
+.env.prod
 .env.*.local
 
 # IDE

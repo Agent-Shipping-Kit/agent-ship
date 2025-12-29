@@ -2,6 +2,8 @@
 
 **Build and deploy AI agents in minutes, not weeks.**
 
+AgentShip is the **production layer** for AI agents. Built on Google ADK, it provides everything you need to ship agents to production: REST API, session management, observability, and one-command deployment.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)]
 
 ---
@@ -20,7 +22,10 @@ make docker-setup
 - ✅ Create `.env` file
 - ✅ Prompt for your API key
 - ✅ Start everything
-- ✅ Open http://localhost:7001/swagger when ready
+
+**Access your services:**
+- 🔌 **API**: http://localhost:7001/swagger
+- 🔧 **Debug UI**: http://localhost:7001/debug-ui
 
 ### Next Time (After First Setup)
 ```bash
@@ -71,15 +76,35 @@ Restart server → Agent is automatically discovered!
 
 ---
 
+## 🔧 Debug UI
+
+AgentShip includes a **Gradio-based Debug UI** for testing agents interactively:
+
+**Access**: http://localhost:7001/debug-ui (same port as API)
+
+Features:
+- 💬 Interactive chat with any registered agent
+- 📝 Dynamic input forms from Pydantic schemas
+- 🔍 Real-time debug logs
+- 🔄 Session management (new/clear conversations)
+
+---
+
 ## 🛠️ Commands
 
-### Local Development (Docker)
+### Local Development (Docker) - Recommended
 ```bash
 make docker-setup   # First-time setup (builds + starts)
 make docker-up      # Start containers (after first setup)
 make docker-down    # Stop containers
 make docker-restart # Restart containers
 make docker-logs    # View logs
+```
+
+### Local Development (No Docker)
+```bash
+make dev            # Start dev server → http://localhost:7001
+                    # Debug UI at → http://localhost:7001/debug-ui
 ```
 
 ### Deploy to Heroku
@@ -90,9 +115,30 @@ make heroku-deploy  # Deploy to Heroku (one command)
 ### Other Commands
 ```bash
 make help           # See all commands
-make dev            # Local dev server (no Docker)
 make test           # Run tests
 ```
+
+---
+
+## 🗄️ Database Environments
+
+AgentShip uses PostgreSQL for session storage. Different environments use different databases:
+
+| Environment | Command | Database | Access |
+|---|---|---|---|
+| **Docker** | `make docker-up` | Docker PostgreSQL (`ai_agents_store`) | `postgres:5432` (inside containers) |
+| **Local** | `make dev` | Local PostgreSQL (`ai_agents_session_store`) | `localhost:5432` |
+| **Heroku** | Auto-provisioned | Heroku PostgreSQL | `DATABASE_URL` env var |
+
+**Note**: Docker and local development use separate databases. Data does not sync between them.
+
+### Docker Networking
+
+Inside Docker, containers communicate via service names, not `localhost`:
+- ✅ `postgres:5432` - Correct (Docker service name)
+- ❌ `localhost:5432` - Wrong (refers to container's own network)
+
+The `docker-compose.yml` automatically overrides the database URL for Docker networking.
 
 ---
 

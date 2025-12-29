@@ -51,7 +51,7 @@ if [ ! -f ".env" ]; then
         sed -i.bak "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=$OPENAI_KEY|" .env 2>/dev/null || \
         sed -i '' "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=$OPENAI_KEY|" .env
         print_success "OpenAI API key added"
-    else
+else
         read -p "Enter your Google API key (or press Enter to skip): " GOOGLE_KEY
         if [ ! -z "$GOOGLE_KEY" ]; then
             sed -i.bak "s|GOOGLE_API_KEY=.*|GOOGLE_API_KEY=$GOOGLE_KEY|" .env 2>/dev/null || \
@@ -78,7 +78,7 @@ else
 fi
 
 # Determine compose command
-COMPOSE_CMD="docker compose"
+    COMPOSE_CMD="docker compose"
 if ! docker compose version &> /dev/null 2>&1; then
     COMPOSE_CMD="docker-compose"
 fi

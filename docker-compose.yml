@@ -10,13 +10,13 @@ services:
     command: ["uvicorn", "src.service.main:app", "--host", "0.0.0.0", "--port", "7001", "--reload"]
     ports:
       - "7001:7001"
+    env_file:
+      - .env
     environment:
       - ENVIRONMENT=docker
       - LOG_LEVEL=INFO
-      # Override database connection to use Docker service name
+      # Override localhost -> postgres for Docker networking
       - AGENT_SESSION_STORE_URI=postgresql://ai_agents_user:ai_agents_password@postgres:5432/ai_agents_store
-    env_file:
-      - .env
     volumes:
       # Mount source code for development (hot-reload)
       - ./src:/app/src
@@ -35,6 +35,7 @@ services:
       - agentship-network
 
   # PostgreSQL Database for Session Storage
+  # Note: Debug UI is now mounted at /debug-ui on the main agentship service
   postgres:
     image: postgres:16-alpine
     container_name: agentship-postgres

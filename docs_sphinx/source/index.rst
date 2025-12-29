@@ -43,6 +43,7 @@ The setup script will:
    :maxdepth: 2
    :caption: Contents:
 
+   why-agentship
    getting-started
    api/index
    testing-with-postman
