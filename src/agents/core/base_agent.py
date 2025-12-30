@@ -7,7 +7,7 @@ that the code is easier to read and extend.
 
 import abc
 import logging
-from typing import Any, List, Optional, Type
+from typing import Any, AsyncGenerator, Dict, List, Optional, Type
 
 from dotenv import load_dotenv
 from google.adk import Agent
@@ -287,3 +287,173 @@ class BaseAgent(abc.ABC):
         """
 
         return []
+
+    # ------------------------------------------------------------------
+    # Streaming API
+    # ------------------------------------------------------------------
+
+    async def run_stream(
+        self, user_id: str, session_id: str, input_data: BaseModel
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Run the agent with streaming - yields events as they happen.
+
+        Events yielded:
+        - {"type": "thinking", "agent": "...", "message": "..."}
+        - {"type": "tool_call", "agent": "...", "tool_name": "...", "arguments": {...}}
+        - {"type": "tool_result", "agent": "...", "tool_name": "...", "result": "..."}
+        - {"type": "content", "agent": "...", "text": "..."}
+        - {"type": "done"}
+        """
+        logger.info("Starting streaming run for agent: %s", self._get_agent_name())
+
+        await self.session_manager.ensure_session_exists(user_id, session_id)
+
+        input_text = input_data.model_dump_json()
+        content = types.Content(role="user", parts=[types.Part(text=input_text)])
+
+        # Emit "thinking" event to indicate processing started
+        yield {
+            "type": "thinking",
+            "agent": self._get_agent_name(),
+            "message": "Processing your request...",
+        }
+
+        # ADK Runner.run() returns a generator with events
+        try:
+            result_generator = self.runner.run(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=content,
+            )
+            logger.info("Runner.run() returned generator, starting to iterate...")
+        except Exception as e:
+            logger.error(f"Failed to create runner generator: {e}", exc_info=True)
+            yield {
+                "type": "error",
+                "agent": self._get_agent_name(),
+                "message": f"Failed to start agent: {str(e)}",
+            }
+            return
+
+        # Track the last content event for final response
+        last_content_event = None
+        event_count = 0
+
+        # Iterate through all events from the runner
+        try:
+            for event in result_generator:
+                event_count += 1
+                logger.info(f"Received event #{event_count} from runner: {type(event).__name__}")
+                
+                stream_events = self._format_stream_event(event)
+                logger.info(f"Formatted {len(stream_events)} stream events from event #{event_count}")
+                
+                if not stream_events:
+                    # If no stream events were generated, log why
+                    if not hasattr(event, "content"):
+                        logger.warning(f"Event #{event_count} has no 'content' attribute. Event type: {type(event)}, dir: {[a for a in dir(event) if not a.startswith('_')][:10]}")
+                    elif not event.content:
+                        logger.warning(f"Event #{event_count} has empty 'content'")
+                    elif not hasattr(event.content, "parts") or not event.content.parts:
+                        logger.warning(f"Event #{event_count} has content but no parts")
+                    else:
+                        logger.warning(f"Event #{event_count} has {len(event.content.parts)} parts but none were processed")
+                
+                for stream_event in stream_events:
+                    if stream_event["type"] == "content":
+                        last_content_event = stream_event
+                        content_text = stream_event.get("text", "")
+                        logger.info(f"Yielding content event: text_length={len(str(content_text))}, preview={str(content_text)[:100] if content_text else 'EMPTY'}")
+                    yield stream_event
+
+            logger.info(f"Finished processing {event_count} events from runner")
+        except Exception as e:
+            logger.error(f"Error while processing runner events: {e}", exc_info=True)
+            yield {
+                "type": "error",
+                "agent": self._get_agent_name(),
+                "message": f"Error processing events: {str(e)}",
+            }
+        
+        yield {"type": "done"}
+
+    def _format_stream_event(self, event) -> List[Dict[str, Any]]:
+        """Convert ADK event to streamable format with tool call visibility.
+
+        Returns a list of events (an ADK event may contain multiple parts).
+        """
+        events = []
+
+        if not hasattr(event, "content") or not event.content:
+            logger.debug(f"Event has no content: {type(event)}, attributes: {dir(event) if hasattr(event, '__dict__') else 'N/A'}")
+            return events
+
+        author = getattr(event, "author", self._get_agent_name())
+
+        # Check each part of the content
+        for part in event.content.parts if event.content.parts else []:
+            # Function/Tool Call (the model is requesting to call a tool)
+            if hasattr(part, "function_call") and part.function_call:
+                fc = part.function_call
+                events.append({
+                    "type": "tool_call",
+                    "agent": author,
+                    "tool_name": fc.name if hasattr(fc, "name") else str(fc),
+                    "arguments": dict(fc.args) if hasattr(fc, "args") and fc.args else {},
+                })
+
+            # Function/Tool Response (result from a tool call)
+            elif hasattr(part, "function_response") and part.function_response:
+                fr = part.function_response
+                result_str = ""
+                if hasattr(fr, "response"):
+                    result_str = str(fr.response)[:500]  # Truncate long results
+                events.append({
+                    "type": "tool_result",
+                    "agent": author,
+                    "tool_name": fr.name if hasattr(fr, "name") else "unknown",
+                    "result": result_str,
+                })
+
+            # Text content
+            elif hasattr(part, "text"):
+                text_value = part.text if part.text else ""
+                logger.info(f"Found text part: has_text={bool(part.text)}, text_length={len(str(text_value))}, preview={str(text_value)[:100] if text_value else 'EMPTY'}")
+                if text_value:
+                    events.append({
+                        "type": "content",
+                        "agent": author,
+                        "text": text_value,
+                    })
+                else:
+                    logger.warning(f"Text part exists but is empty or None")
+
+        return events
+
+    async def chat_stream(
+        self, request: AgentChatRequest
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Streaming chat - yields events for SSE.
+
+        This is the streaming equivalent of chat(). Use this for real-time
+        updates showing tool calls, thinking states, and progressive responses.
+        """
+        logger.debug("Starting streaming chat with agent: %s", self._get_agent_name())
+
+        try:
+            input_data = self._create_input_from_request(request)
+
+            async for event in self.run_stream(
+                request.user_id,
+                request.session_id,
+                input_data,
+            ):
+                yield event
+
+        except Exception as exc:
+            logger.error("Streaming chat error: %s", exc, exc_info=True)
+            yield {
+                "type": "error",
+                "agent": self._get_agent_name(),
+                "message": str(exc),
+            }

@@ -344,12 +344,25 @@ async def debug_chat(request: DebugChatRequest):
 async def debug_chat_stream(request: DebugChatRequest):
     """
     Streaming chat endpoint using Server-Sent Events.
-    Streams tokens as they're generated.
+    
+    Streams real events as they happen including:
+    - session: Session info (sent first)
+    - thinking: Agent is processing
+    - tool_call: Agent is calling a tool (shows function name + args)
+    - tool_result: Tool returned a result
+    - content: Agent's text response
+    - done: Stream complete
+    - error: An error occurred
     """
+    logger.info(f"🚀 Stream request received for agent: {request.agent_name}")
+    
     async def event_generator():
+        stream_completed = False  # Initialize before try block
         try:
             session_id = request.session_id or f"debug_{uuid.uuid4().hex[:12]}"
             user_id = request.user_id or f"debug_user_{uuid.uuid4().hex[:8]}"
+            
+            logger.info(f"📡 Starting stream for session: {session_id}")
             
             # Send session info first
             yield {
@@ -363,50 +376,96 @@ async def debug_chat_stream(request: DebugChatRequest):
                 for key, value in request.features.items():
                     features.append(FeatureMap(feature_name=key, feature_value=value))
             
+            # Parse the query - prefer features (form data) over message (JSON string)
+            # The debug UI sends form data as features, and message as JSON.stringify(formData)
+            query = {}
+            
+            # First, use features directly (this is the form data from the UI: source, destination, etc.)
+            if request.features:
+                query = dict(request.features)
+            
+            # If no features but message is provided, try to parse it as JSON
+            if not query and request.message:
+                try:
+                    parsed_message = json.loads(request.message)
+                    if isinstance(parsed_message, dict):
+                        query = parsed_message
+                    else:
+                        query = {"text": request.message}
+                except (json.JSONDecodeError, TypeError):
+                    query = {"text": request.message}
+            
             # Create request
             chat_request = AgentChatRequest(
                 agent_name=request.agent_name,
                 user_id=user_id,
                 session_id=session_id,
                 sender="USER",
-                query={"text": request.message},
+                query=query,
                 features=features
             )
             
-            # Get agent and chat
+            # Get agent and use streaming chat
             agent = get_agent_instance(request.agent_name)
-            result = await agent.chat(chat_request)
+            logger.info(f"🤖 Got agent instance, starting chat_stream...")
             
-            # Extract and stream response
-            response_text = ""
-            if hasattr(result, 'agent_response'):
-                if isinstance(result.agent_response, dict):
-                    response_text = result.agent_response.get('response',
-                                   result.agent_response.get('text', str(result.agent_response)))
-                else:
-                    response_text = str(result.agent_response)
-            
-            # Simulate streaming by chunking the response
-            # In a real implementation, you'd stream from the LLM directly
-            chunk_size = 20
-            for i in range(0, len(response_text), chunk_size):
-                chunk = response_text[i:i + chunk_size]
+            # Stream real events from the agent
+            try:
+                async for event in agent.chat_stream(chat_request):
+                    event_type = event.get("type", "message")
+                    
+                    # Log content events with their actual content
+                    if event_type == "content":
+                        content_text = event.get("text", "") or event.get("content", "")
+                        logger.info(f"📨 Yielding content event: type={event_type}, text_length={len(str(content_text))}, preview={str(content_text)[:100] if content_text else 'EMPTY'}")
+                    else:
+                        logger.info(f"📨 Yielding event: {event_type}")
+                    
+                    # Skip duplicate "done" events (agent already sends one)
+                    if event_type == "done":
+                        stream_completed = True
+                    
+                    # Log the actual data being sent for content events
+                    if event_type == "content":
+                        event_data_str = json.dumps(event)
+                        logger.info(f"📤 Sending content event via SSE: event={event_type}, data_length={len(event_data_str)}, data_preview={event_data_str[:200]}")
+                    
+                    yield {
+                        "event": event_type,
+                        "data": json.dumps(event)
+                    }
+                
+                # Track session after streaming completes successfully
+                if session_id not in _sessions:
+                    _sessions[session_id] = SessionInfo(
+                        session_id=session_id,
+                        agent_name=request.agent_name,
+                        created_at=datetime.now().isoformat(),
+                        message_count=0
+                    )
+                _sessions[session_id].message_count += 1
+                stream_completed = True
+                
+            except Exception as stream_error:
+                logger.exception("Error during agent chat_stream")
                 yield {
-                    "event": "token",
-                    "data": json.dumps({"token": chunk})
+                    "event": "error",
+                    "data": json.dumps({"type": "error", "message": str(stream_error)})
                 }
-            
-            yield {
-                "event": "done",
-                "data": json.dumps({"complete": True})
-            }
             
         except Exception as e:
             logger.exception("Streaming chat failed")
             yield {
                 "event": "error",
-                "data": json.dumps({"error": str(e)})
+                "data": json.dumps({"type": "error", "message": str(e)})
             }
+        finally:
+            # Always yield a done event to properly close the stream (if agent didn't already)
+            if not stream_completed:
+                yield {
+                    "event": "done",
+                    "data": json.dumps({"type": "done"})
+                }
     
     return EventSourceResponse(event_generator())
 

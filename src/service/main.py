@@ -46,8 +46,25 @@ async def read_root():
 async def health_check():
     '''
     Health check endpoint for the backend.
+    Includes basic memory info (uses psutil if available).
     '''
-    return {"status": "running"}
+    try:
+        import psutil
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        mem_mb = mem_info.rss / (1024 * 1024)
+        eco_limit_mb = 512.0
+        
+        return {
+            "status": "running",
+            "memory_mb": round(mem_mb, 2),
+            "memory_limit_mb": eco_limit_mb,
+            "within_limit": mem_mb < eco_limit_mb,
+            "percent_of_limit": round((mem_mb / eco_limit_mb) * 100, 1)
+        }
+    except ImportError:
+        # psutil not installed, return basic status
+        return {"status": "running"}
 
 # Serve Sphinx documentation at /docs (single source of truth)
 # If not built locally, show a helpful page with links
@@ -123,12 +140,23 @@ if debug_ui_enabled:
         @app.get("/debug-ui", response_class=HTMLResponse)
         @app.get("/debug-ui/", response_class=HTMLResponse)
         async def debug_ui():
-            """Serve the Debug UI."""
-            return FileResponse(os.path.join(static_path, "index.html"))
+            """Serve the Debug UI with no-cache headers for development."""
+            response = FileResponse(os.path.join(static_path, "index.html"))
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+            return response
         
         logger.info("🔧 Debug UI mounted at /debug-ui")
     else:
         logger.warning(f"Debug UI static files not found at {static_path}")
+
+# Prometheus metrics (optional - install prometheus-fastapi-instrumentator)
+# Uncomment to enable standard Prometheus metrics including memory/CPU
+# from prometheus_fastapi_instrumentator import Instrumentator
+# instrumentator = Instrumentator()
+# instrumentator.instrument(app).expose(app)
+# Then access metrics at: http://localhost:7001/metrics
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7001))

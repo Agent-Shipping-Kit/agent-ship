@@ -89,10 +89,17 @@ dev: ## Start development server
 test: ## Run all tests
 	pipenv run pytest tests/ -v
 
+test-memory: ## Run memory optimization tests
+	pipenv run pytest tests/unit/test_memory_optimizations.py -v
+
 test-cov: ## Run tests with coverage
 	pipenv run pytest tests/ --cov=src --cov-report=html --cov-report=term
 	@echo ""
 	@echo "📊 Coverage report generated in htmlcov/index.html"
+
+test-docker: ## Test memory optimizations in Docker (512MB limit)
+	@chmod +x scripts/test_memory_docker.sh
+	@./scripts/test_memory_docker.sh
 
 lint: ## Run code linters
 	@echo "🔍 Running linters..."

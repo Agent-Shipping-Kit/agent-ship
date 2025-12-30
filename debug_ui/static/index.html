@@ -223,6 +223,7 @@
         }
         
         async function sendRequest() {
+            console.log('⚡ sendRequest v2 - STREAMING ENABLED');
             if (!state.currentAgent || !state.currentSchema || state.isLoading) return;
             
             // Collect form values
@@ -236,38 +237,486 @@
             const displayMessage = formatInputForDisplay(formData);
             addMessage('user', displayMessage, formData);
             
-            const typingId = showTypingIndicator();
+            // Use streaming endpoint for real-time events
+            await sendStreamingRequest(formData);
+        }
+        
+        async function sendStreamingRequest(formData) {
+            console.log('🚀🚀🚀 STREAMING v3 - NEW CODE LOADED 🚀🚀🚀');
+            console.log('🚀 Starting streaming request...');
+            
+            // Create a streaming events container
+            const streamContainerId = showStreamingContainer();
+            const events = [];
+            let finalContent = '';
+            let hasReceivedFirstEvent = false;
             
             try {
-                const response = await fetch('/api/debug/chat', {
+                console.log('📡 Fetching /api/debug/chat/stream');
+                const response = await fetch('/api/debug/chat/stream', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream'
+                    },
                     body: JSON.stringify({
                         agent_name: state.currentAgent,
                         message: JSON.stringify(formData),
                         session_id: state.sessionId,
                         user_id: state.userId,
-                        features: formData  // Send as features for proper routing
+                        features: formData
                     })
                 });
                 
-                const data = await response.json();
-                removeTypingIndicator(typingId);
+                console.log('✅ Response received, status:', response.status, 'ok:', response.ok);
                 
-                if (response.ok) {
-                    state.sessionId = data.session_id;
-                    elements.sessionIdDisplay.textContent = `Session: ${state.sessionId.substr(0, 12)}...`;
-                    // Add response with logs
-                    addMessage('assistant', data.response, null, data.logs || []);
-                } else {
-                    addMessage('error', data.detail || 'Request failed');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ Response error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}: ${errorText}`);
                 }
+                
+                if (!response.body) {
+                    throw new Error('Response body is null - cannot stream');
+                }
+                
+                console.log('📖 Getting reader...');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let currentEventType = 'message';
+                let chunkCount = 0;
+                
+                console.log('🔄 Starting read loop...');
+                while (true) {
+                    console.log(`📥 Reading chunk ${chunkCount}...`);
+                    const { value, done } = await reader.read();
+                    chunkCount++;
+                    
+                    if (done) {
+                        console.log('✅ Stream done, total chunks:', chunkCount);
+                        // Process any remaining buffer content when stream ends
+                        if (buffer.trim()) {
+                            console.log('📨 Processing final buffer content:', buffer.length, 'chars', 'preview:', buffer.substring(0, 500));
+                            // Process all remaining messages in buffer
+                            processRemainingBuffer();
+                        }
+                        break;
+                    }
+                    
+                    console.log(`📦 Got chunk ${chunkCount}, size:`, value?.length || 0);
+                    
+                    const decoded = decoder.decode(value, { stream: true });
+                    buffer += decoded;
+                    console.log(`📝 Decoded chunk ${chunkCount}, buffer length:`, buffer.length, 'preview:', buffer.substring(0, 200));
+                    
+                    // Process messages from buffer
+                    processBufferMessages();
+                    
+                    function processBufferMessages() {
+                        // SSE format: "event: <type>\ndata: <json>\n\n"
+                        // Process messages by finding "event:" markers
+                        let processedAny = false;
+                        
+                        // Split by "event:" to find message boundaries (but keep the "event:" in the message)
+                        const eventPattern = /(?=\nevent:)/g;
+                        const messages = buffer.split(eventPattern);
+                        
+                        // If we have multiple messages, process all but the last (might be incomplete)
+                        if (messages.length > 1) {
+                            for (let i = 0; i < messages.length - 1; i++) {
+                                const message = messages[i].trim();
+                                if (message) {
+                                    // Ensure it starts with "event:"
+                                    const msg = message.startsWith('event:') ? message : 'event:' + message;
+                                    processSSEMessage(msg);
+                                    processedAny = true;
+                                }
+                            }
+                            // Keep the last message in buffer (might be incomplete)
+                            buffer = messages[messages.length - 1];
+                        } else {
+                            // Try double newline separation as fallback
+                            const doubleNewlineMessages = buffer.split('\n\n');
+                            if (doubleNewlineMessages.length > 1) {
+                                buffer = doubleNewlineMessages.pop() || '';
+                                for (const message of doubleNewlineMessages) {
+                                    if (message.trim()) {
+                                        processSSEMessage(message);
+                                        processedAny = true;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (!processedAny) {
+                            console.log(`📨 No complete messages found, buffer remaining:`, buffer.length);
+                        }
+                    }
+                    
+                    function processRemainingBuffer() {
+                        // When stream ends, process all remaining content
+                        // Split by "event:" markers
+                        const eventPattern = /(?=\nevent:)/g;
+                        const messages = buffer.split(eventPattern);
+                        
+                        for (const message of messages) {
+                            const msg = message.trim();
+                            if (msg) {
+                                const finalMsg = msg.startsWith('event:') ? msg : 'event:' + msg;
+                                processSSEMessage(finalMsg);
+                            }
+                        }
+                        buffer = ''; // Clear buffer after processing
+                    }
+                    
+                    function processSSEMessage(message) {
+                        if (!message.trim()) return;
+                        
+                        console.log('📝 Processing SSE message:', message.substring(0, 300)); // Log first 300 chars
+                        
+                        const lines = message.split('\n');
+                        let eventType = 'message';
+                        let eventData = null;
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('event:')) {
+                                eventType = line.substring(6).trim();
+                                console.log('🔖 Parsed event type from SSE:', eventType);
+                            } else if (line.startsWith('data:')) {
+                                const dataStr = line.substring(5).trim();
+                                console.log('📦 Parsing data line, length:', dataStr.length, 'preview:', dataStr.substring(0, 100));
+                                try {
+                                    eventData = JSON.parse(dataStr);
+                                    console.log('✅ Parsed eventData:', eventData.type || 'unknown', 'keys:', Object.keys(eventData));
+                                } catch (e) {
+                                    console.error('❌ Failed to parse SSE data:', e, 'line:', line.substring(0, 100));
+                                }
+                            }
+                        }
+                        
+                        if (eventData) {
+                            // Use the type from data if available, otherwise use event type
+                            const type = eventData.type || eventType;
+                            console.log('📨 Received event:', type, 'has text:', !!eventData.text, 'text length:', eventData.text ? eventData.text.length : 0);
+                            
+                            // Remove "Starting..." placeholder on first non-session event
+                            if (!hasReceivedFirstEvent && type !== 'session') {
+                                hasReceivedFirstEvent = true;
+                                const eventsContainer = document.getElementById(`${streamContainerId}-events`);
+                                if (eventsContainer) {
+                                    const placeholder = eventsContainer.querySelector('.animate-spin')?.parentElement;
+                                    if (placeholder) placeholder.remove();
+                                }
+                            }
+                            
+                            // Handle content events immediately for incremental display
+                            if (type === 'content') {
+                                let contentText = eventData.text || eventData.content || '';
+                                if (contentText) {
+                                    // The text might be a JSON string, try to parse it
+                                    try {
+                                        const parsed = JSON.parse(contentText);
+                                        // If it's an object, try to extract meaningful text
+                                        if (typeof parsed === 'object') {
+                                            // Try common fields that might contain the actual response
+                                            contentText = parsed.flight_plan || parsed.response || parsed.text || JSON.stringify(parsed, null, 2);
+                                        }
+                                    } catch (e) {
+                                        // Not JSON, use as-is
+                                        console.log('Content is not JSON, using as plain text');
+                                    }
+                                    
+                                    finalContent += contentText;
+                                    console.log('📝 Updating content, total length:', finalContent.length);
+                                    updateContentInRealTime(streamContainerId, finalContent);
+                                } else {
+                                    console.warn('⚠️ Content event has no text');
+                                }
+                            } else {
+                                handleStreamEvent(eventData, streamContainerId, events);
+                            }
+                            
+                            // Update session ID from session event
+                            if (type === 'session' || eventData.session_id) {
+                                state.sessionId = eventData.session_id;
+                    elements.sessionIdDisplay.textContent = `Session: ${state.sessionId.substr(0, 12)}...`;
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize the streaming container
+                finalizeStreamingContainer(streamContainerId, finalContent, events);
+                
             } catch (error) {
-                removeTypingIndicator(typingId);
-                addMessage('error', `Error: ${error.message}`);
+                console.error('Streaming error:', error);
+                updateStreamingContainer(streamContainerId, 'error', {
+                    type: 'error',
+                    message: error.message
+                });
+                finalizeStreamingContainer(streamContainerId, `Error: ${error.message}`, []);
             } finally {
                 state.isLoading = false;
                 updateSendButton();
+            }
+        }
+        
+        function handleStreamEvent(data, containerId, events) {
+            events.push(data);
+            updateStreamingContainer(containerId, data.type, data);
+        }
+        
+        function showStreamingContainer() {
+            const id = `stream-${Date.now()}`;
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'message-bubble fade-in flex justify-start';
+            div.innerHTML = `
+                <div class="max-w-2xl">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="bg-gray-700 border border-gray-600 rounded-2xl rounded-tl-sm px-4 py-3 min-w-[300px]">
+                            <div id="${id}-events" class="space-y-2">
+                                <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Starting...</span>
+                                </div>
+                            </div>
+                            <div id="${id}-content" class="hidden mt-3 pt-3 border-t border-gray-600">
+                                <div class="text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (elements.welcomeMessage) {
+                elements.welcomeMessage.classList.add('hidden');
+            }
+            elements.chatContainer.appendChild(div);
+            scrollToBottom();
+            return id;
+        }
+        
+        function updateStreamingContainer(containerId, eventType, data) {
+            const eventsContainer = document.getElementById(`${containerId}-events`);
+            if (!eventsContainer) return;
+            
+            const eventEl = document.createElement('div');
+            eventEl.className = 'flex items-center gap-2 text-sm fade-in';
+            
+            // Get the actual type from data if available
+            const type = data.type || eventType;
+            
+            switch (type) {
+                case 'session':
+                    // Session event is handled separately, don't show in UI
+                    return;
+                    
+                case 'thinking':
+                    eventEl.innerHTML = `
+                        <span class="text-blue-400">🤔</span>
+                        <span class="text-blue-300">${escapeHtml(data.message || 'Thinking...')}</span>
+                    `;
+                    break;
+                    
+                case 'tool_call':
+                    eventEl.innerHTML = `
+                        <span class="text-yellow-400">🔧</span>
+                        <span class="text-yellow-300">Calling: <code class="bg-gray-800 px-1 rounded">${escapeHtml(data.tool_name || 'tool')}</code></span>
+                        ${data.arguments && Object.keys(data.arguments).length > 0 ? 
+                            `<span class="text-gray-500 text-xs truncate max-w-[200px]">${escapeHtml(JSON.stringify(data.arguments))}</span>` : ''}
+                    `;
+                    break;
+                    
+                case 'tool_result':
+                    eventEl.innerHTML = `
+                        <span class="text-green-400">✓</span>
+                        <span class="text-green-300">Result from: <code class="bg-gray-800 px-1 rounded">${escapeHtml(data.tool_name || 'tool')}</code></span>
+                    `;
+                    // Optionally show result preview
+                    if (data.result && data.result.length > 0) {
+                        const preview = data.result.length > 100 ? data.result.substring(0, 100) + '...' : data.result;
+                        eventEl.innerHTML += `<span class="text-gray-500 text-xs truncate max-w-[200px]" title="${escapeHtml(data.result)}">${escapeHtml(preview)}</span>`;
+                    }
+                    break;
+                    
+                case 'content':
+                    // Content is handled separately for real-time updates
+                    return;
+                    
+                case 'done':
+                    eventEl.innerHTML = `
+                        <span class="text-green-400">✅</span>
+                        <span class="text-green-300">Complete</span>
+                    `;
+                    break;
+                    
+                case 'error':
+                    eventEl.innerHTML = `
+                        <span class="text-red-400">❌</span>
+                        <span class="text-red-300">Error: ${escapeHtml(data.message || 'Unknown error')}</span>
+                    `;
+                    break;
+                    
+                default:
+                    // Skip unknown event types silently
+                    console.log('Unknown event type:', type, data);
+                    return;
+            }
+            
+            // Remove the "Starting..." placeholder if present
+            const placeholder = eventsContainer.querySelector('.animate-spin')?.parentElement;
+            if (placeholder) placeholder.remove();
+            
+            eventsContainer.appendChild(eventEl);
+            scrollToBottom();
+        }
+        
+        function updateContentInRealTime(containerId, content) {
+            console.log('🎨 updateContentInRealTime called, containerId:', containerId, 'content length:', content.length);
+            const contentDiv = document.getElementById(`${containerId}-content`);
+            if (!contentDiv) {
+                console.error('❌ Content div not found:', `${containerId}-content`);
+                return;
+            }
+            
+            // Show content div as soon as we have content
+            contentDiv.classList.remove('hidden');
+            console.log('✅ Content div is now visible');
+            
+            // Update content incrementally
+            const contentElement = contentDiv.querySelector('.text-sm');
+            if (contentElement) {
+                // Format the content for display
+                let formattedContent = escapeHtml(content)
+                    .replace(/\n/g, '<br>')
+                    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-800 rounded p-2 my-2 overflow-x-auto"><code>$2</code></pre>');
+                
+                // Check if we should animate (if content is significantly longer than what's already displayed)
+                const currentLength = contentElement.textContent?.length || 0;
+                const newLength = content.length;
+                
+                if (newLength > currentLength + 50) {
+                    // Large jump - animate the new content
+                    animateTextAppearance(contentElement, formattedContent, currentLength);
+                } else {
+                    // Small update - just set it directly
+                    contentElement.innerHTML = formattedContent;
+                }
+                
+                console.log('✅ Content updated in DOM, length:', formattedContent.length);
+            } else {
+                console.error('❌ Content element (.text-sm) not found in content div');
+            }
+            
+            // Remove "Starting..." placeholder if present
+            const eventsContainer = document.getElementById(`${containerId}-events`);
+            if (eventsContainer) {
+                const placeholder = eventsContainer.querySelector('.animate-spin')?.parentElement;
+                if (placeholder) {
+                    placeholder.remove();
+                    console.log('✅ Removed "Starting..." placeholder');
+                }
+            }
+            
+            scrollToBottom();
+        }
+        
+        function animateTextAppearance(element, fullContent, startLength) {
+            // Simple typewriter effect for incremental display
+            const charsToAdd = fullContent.length - startLength;
+            if (charsToAdd <= 0) return;
+            
+            const currentContent = element.innerHTML || '';
+            const newContent = fullContent;
+            
+            // If the difference is large, show it immediately (backend sent it all at once)
+            // Otherwise animate it
+            if (charsToAdd > 100) {
+                // Too much to animate smoothly, just show it
+                element.innerHTML = newContent;
+            } else {
+                // Animate character by character
+                let currentIndex = startLength;
+                const interval = setInterval(() => {
+                    if (currentIndex < newContent.length) {
+                        element.innerHTML = newContent.substring(0, currentIndex + 1);
+                        currentIndex++;
+                        scrollToBottom();
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 10); // 10ms per character = fast but visible
+            }
+        }
+        
+        function finalizeStreamingContainer(containerId, content, events) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const contentDiv = document.getElementById(`${containerId}-content`);
+            if (contentDiv && content) {
+                // Ensure content is visible (might already be visible from real-time updates)
+                contentDiv.classList.remove('hidden');
+                const contentElement = contentDiv.querySelector('.text-sm');
+                if (contentElement) {
+                    contentElement.innerHTML = escapeHtml(content)
+                        .replace(/\n/g, '<br>')
+                        .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-800 rounded p-2 my-2 overflow-x-auto"><code>$2</code></pre>');
+                }
+            }
+            
+            // Add timestamp and feedback buttons
+            const timestamp = new Date().toLocaleTimeString();
+            const messageIndex = state.messages.length;
+            
+            // Store the message in state
+            state.messages.push({
+                role: 'assistant',
+                content: content,
+                timestamp: timestamp,
+                feedback: null,
+                events: events
+            });
+            
+            // Add timestamp and controls
+            const wrapper = container.querySelector('.bg-gray-700');
+            if (wrapper) {
+                const controlsHtml = `
+                    <p class="text-xs text-gray-500 mt-3">${timestamp}</p>
+                `;
+                wrapper.insertAdjacentHTML('beforeend', controlsHtml);
+                
+                // Add feedback buttons after the message bubble
+                const feedbackHtml = `
+                    <div class="flex items-center gap-2 mt-2 ml-11">
+                        <button onclick="sendFeedback(${messageIndex}, 'up')" class="feedback-btn p-1 rounded text-gray-500 hover:text-green-400 hover:bg-green-500/10 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                            </svg>
+                        </button>
+                        <button onclick="sendFeedback(${messageIndex}, 'down')" class="feedback-btn p-1 rounded text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.737 3h4.017c.163 0 .326.02.485.06L17 4m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"/>
+                            </svg>
+                        </button>
+                        <button onclick="copyMessage(${messageIndex})" class="p-1 rounded text-gray-500 hover:text-gray-300 hover:bg-gray-600/50 transition-all" title="Copy">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                container.querySelector('.max-w-2xl').insertAdjacentHTML('beforeend', feedbackHtml);
             }
         }
         

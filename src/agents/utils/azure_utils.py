@@ -2,9 +2,6 @@
 
 import logging
 from typing import List, Dict, Any, Optional
-from azure.storage.blob import BlobServiceClient
-from azure.core.exceptions import AzureError
-from src.agents.configs.azure_config import azure_settings
 
 logger = logging.getLogger(__name__)
 
@@ -14,30 +11,50 @@ class AzureUtils:
     
     def __init__(self):
         """Initialize Azure utilities."""
-        self._setup_azure_client()
+        self._blob_service_client = None
+        self._client_initialized = False
     
     def _setup_azure_client(self) -> None:
-        """Setup Azure Blob Storage client."""
+        """Setup Azure Blob Storage client (lazy import)."""
+        if self._client_initialized:
+            return
+            
         try:
+            # Lazy import to avoid loading Azure libraries if not used
+            from azure.storage.blob import BlobServiceClient
+            from src.agents.configs.azure_config import azure_settings
+            
             # Get Azure credentials from configuration
             connection_string = azure_settings.AZURE_STORAGE_CONNECTION_STRING
             account_name = azure_settings.AZURE_STORAGE_ACCOUNT_NAME
             account_key = azure_settings.AZURE_STORAGE_ACCOUNT_KEY
             
             if connection_string:
-                self.blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+                self._blob_service_client = BlobServiceClient.from_connection_string(connection_string)
             elif account_name and account_key:
-                self.blob_service_client = BlobServiceClient(
+                self._blob_service_client = BlobServiceClient(
                     account_url=f"https://{account_name}.blob.core.windows.net",
                     credential=account_key
                 )
             else:
                 logger.warning("Azure storage credentials not found. Utils will use mock data.")
-                self.blob_service_client = None
+                self._blob_service_client = None
                 
+        except ImportError:
+            logger.warning("Azure libraries not installed. AzureUtils will not function.")
+            self._blob_service_client = None
         except Exception as e:
             logger.error(f"Failed to setup Azure client: {e}")
-            self.blob_service_client = None
+            self._blob_service_client = None
+        finally:
+            self._client_initialized = True
+    
+    @property
+    def blob_service_client(self):
+        """Lazy initialization of blob service client."""
+        if not self._client_initialized:
+            self._setup_azure_client()
+        return self._blob_service_client
     
     def download_blob(self, container_name: str, blob_name: str) -> Dict[str, Any]:
         """Download a blob from Azure Blob Storage."""
@@ -65,9 +82,14 @@ class AzureUtils:
                 "status": "success"
             }
             
-        except AzureError as e:
-            logger.error(f"Azure error downloading blob: {e}")
-            return {"error": f"Azure error: {str(e)}"}
+        except Exception as e:
+            # Check if it's an Azure error
+            error_type = type(e).__name__
+            if "Azure" in error_type or "azure" in str(type(e)):
+                logger.error(f"Azure error downloading blob: {e}")
+                return {"error": f"Azure error: {str(e)}"}
+            logger.error(f"Error downloading blob: {e}")
+            return {"error": str(e)}
         except Exception as e:
             logger.error(f"Error downloading blob: {e}")
             return {"error": str(e)}
@@ -104,10 +126,11 @@ class AzureUtils:
                 "filter": file_extension
             }
             
-        except AzureError as e:
-            logger.error(f"Azure error listing blobs: {e}")
-            return {"error": f"Azure error: {str(e)}"}
         except Exception as e:
+            error_type = type(e).__name__
+            if "Azure" in error_type or "azure" in str(type(e)):
+                logger.error(f"Azure error listing blobs: {e}")
+                return {"error": f"Azure error: {str(e)}"}
             logger.error(f"Error listing blobs: {e}")
             return {"error": str(e)}
     
@@ -138,10 +161,11 @@ class AzureUtils:
                 "status": "success"
             }
             
-        except AzureError as e:
-            logger.error(f"Azure error getting blob metadata: {e}")
-            return {"error": f"Azure error: {str(e)}"}
         except Exception as e:
+            error_type = type(e).__name__
+            if "Azure" in error_type or "azure" in str(type(e)):
+                logger.error(f"Azure error getting blob metadata: {e}")
+                return {"error": f"Azure error: {str(e)}"}
             logger.error(f"Error getting blob metadata: {e}")
             return {"error": str(e)}
     
@@ -168,10 +192,11 @@ class AzureUtils:
                 "status": "success"
             }
             
-        except AzureError as e:
-            logger.error(f"Azure error checking blob existence: {e}")
-            return {"error": f"Azure error: {str(e)}"}
         except Exception as e:
+            error_type = type(e).__name__
+            if "Azure" in error_type or "azure" in str(type(e)):
+                logger.error(f"Azure error checking blob existence: {e}")
+                return {"error": f"Azure error: {str(e)}"}
             logger.error(f"Error checking blob existence: {e}")
             return {"error": str(e)}
     
@@ -203,10 +228,11 @@ class AzureUtils:
                 "count": len(matching_blobs)
             }
             
-        except AzureError as e:
-            logger.error(f"Azure error searching blobs: {e}")
-            return {"error": f"Azure error: {str(e)}"}
         except Exception as e:
+            error_type = type(e).__name__
+            if "Azure" in error_type or "azure" in str(type(e)):
+                logger.error(f"Azure error searching blobs: {e}")
+                return {"error": f"Azure error: {str(e)}"}
             logger.error(f"Error searching blobs: {e}")
             return {"error": str(e)}
     

@@ -13,17 +13,17 @@ pydantic = "==2.12.0"
 pydantic-settings = "==2.11.0"
 # Google Cloud Dependencies
 google-api-python-client = "==2.184.0"
-google-cloud-aiplatform = "==1.115.0"
-google-cloud-bigtable = "==2.33.0"
+# Removed unused: google-cloud-aiplatform (not used in codebase)
+# Removed unused: google-cloud-bigtable (not used in codebase)
 google-cloud-secret-manager = "==2.24.0"
-google-cloud-spanner = "==3.58.0"
+# Removed unused: google-cloud-spanner (not used in codebase)
 google-cloud-storage = "==2.19.0"
 google-genai = "==1.36.0"
 google-auth = "==2.41.1"
 authlib = "==1.6.5"
 # Database Dependencies
 sqlalchemy = "==2.0.44"
-sqlalchemy-spanner = "==1.17.0"
+# Removed unused: sqlalchemy-spanner (only needed for Spanner, not used)
 alembic = "==1.17.0"
 psycopg2-binary = "==2.9.11"
 # Azure Dependencies
@@ -67,6 +67,8 @@ colorlog = "==6.9.0"
 python-json-logger = "==4.0.0"
 opik = "==1.8.63"
 pytest-asyncio = "*"
+# System utilities for memory monitoring
+psutil = "*"
 
 [dev-packages]
 pytest = "*"
@@ -74,3 +76,4 @@ sphinx = "*"
 furo = "*"
 sphinx-autodoc-typehints = "*"
 sphinx-autobuild = "*"
+memory-profiler = "*"
