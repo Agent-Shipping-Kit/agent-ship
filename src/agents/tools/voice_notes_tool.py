@@ -123,9 +123,6 @@ class VoiceNotesTool(BaseTool):
     @opik.track(name="voice_notes_tool_to_function_tool", tags=["voice_notes_tool"])
     def to_function_tool(self) -> FunctionTool:
         """Convert this tool to a Google ADK FunctionTool."""
-        return FunctionTool(
-            name=self.tool_name,
-            description=self.tool_description,
-            function=self.run
-        )
+        # Use the base class implementation which properly handles function metadata
+        return super().to_function_tool()
 

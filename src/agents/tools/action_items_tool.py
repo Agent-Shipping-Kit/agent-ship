@@ -140,9 +140,6 @@ class ActionItemsTool(BaseTool):
     @opik.track(name="action_items_tool_to_function_tool", tags=["action_items_tool"])
     def to_function_tool(self) -> FunctionTool:
         """Convert this tool to a Google ADK FunctionTool."""
-        return FunctionTool(
-            name=self.tool_name,
-            description=self.tool_description,
-            function=self.run
-        )
+        # Use the base class implementation which properly handles function metadata
+        return super().to_function_tool()
 

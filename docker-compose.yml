@@ -17,6 +17,8 @@ services:
       - LOG_LEVEL=INFO
       # Override localhost -> postgres for Docker networking
       - AGENT_SESSION_STORE_URI=postgresql://ai_agents_user:ai_agents_password@postgres:5432/ai_agents_store
+      # Backend API runs on host machine (localhost:5001), use host.docker.internal to reach it from container
+      - BACKEND_URL=http://host.docker.internal:5001
     volumes:
       # Mount source code for development (hot-reload)
       - ./src:/app/src
@@ -34,6 +36,9 @@ services:
       start_period: 40s
     networks:
       - agentship-network
+    # Enable host.docker.internal for Linux (already works on Docker Desktop Mac/Windows)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # PostgreSQL Database for Session Storage
   # Note: Debug UI is now mounted at /debug-ui on the main agentship service

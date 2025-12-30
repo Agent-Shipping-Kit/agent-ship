@@ -5,9 +5,10 @@ help: ## Show this help message
 	@echo ""
 	@echo "🐳 Docker (Local Development):"
 	@echo "  make docker-setup     - First-time setup (builds + starts)"
-	@echo "  make docker-up        - Start containers (after first setup)"
+	@echo "  make docker-up        - Start containers (with hot-reload)"
 	@echo "  make docker-down      - Stop containers"
 	@echo "  make docker-restart   - Restart containers"
+	@echo "  make docker-reload    - Hard reload (down + up, reloads env vars)"
 	@echo "  make docker-logs      - View Docker logs"
 	@echo "  make docker-build     - Rebuild Docker images"
 	@echo ""
@@ -51,6 +52,10 @@ docker-down: ## Stop Docker containers
 
 docker-restart: ## Restart Docker containers
 	@docker compose restart || docker-compose restart
+
+docker-reload: ## Hard reload containers (down + up, reloads environment variables)
+	@echo "🔄 Hard reloading Docker containers..."
+	@docker compose down && docker compose up -d || docker-compose down && docker-compose up -d
 
 docker-logs: ## View Docker logs
 	@docker compose logs -f || docker-compose logs -f
