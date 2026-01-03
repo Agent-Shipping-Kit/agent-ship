@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./branding/github-banner.svg" alt="AgentShip" width="100%">
+  <img src="branding/banners/github-banner@3x.png" alt="AgentShip" width="100%">
 </p>
 
 <p align="center">
@@ -61,6 +61,24 @@ make docker-logs    # View logs
 ```
 
 **Hot-reload enabled!** Edit code in `src/` and changes auto-reload.
+
+---
+
+## 🏗️ Architecture
+
+AgentShip's architecture is designed for production-scale AI agent deployment:
+
+<p align="center">
+  <img src="branding/Architecture.png" alt="AgentShip Architecture" width="100%">
+</p>
+
+The system includes:
+- **FastAPI Entrypoint**: HTTP, SSE, and WebSocket support
+- **Main Ecosystem**: YAML-based agent configurations, LLM sidecar, observability, and guardrails
+- **LLM Tooling Layer**: Utils, tools, and MCP integration
+- **Memory Layer**: Session memory, external context stores, caching, and file storage
+- **Data Ingestion Pipeline**: Processes data from various sources
+- **Observability**: OPIK & Langfuse integration for monitoring and evaluation
 
 ---
 
